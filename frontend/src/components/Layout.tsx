@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { Users, LayoutDashboard, LogOut, Contact as ContactIcon, Menu, X, Phone } from 'lucide-react'
+import { Users, LayoutDashboard, LogOut, Contact as ContactIcon, Menu, X } from 'lucide-react'
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuth()
@@ -22,14 +22,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   const sidebarContent = (
     <>
-      <div className="flex items-center gap-3 px-5 py-5">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary-500 shadow-lg shadow-primary-500/30">
-          <Phone className="h-5 w-5 text-white" />
-        </div>
-        <div>
-          <h1 className="text-lg font-bold text-white tracking-tight">RingOver</h1>
-          <p className="text-[11px] text-primary-300 font-semibold">CRM & Téléphonie d'entreprise</p>
-        </div>
+      <div className="flex flex-col items-center px-5 py-5">
+        <img src="/logo.png" alt="RingOver" className="w-40 rounded-lg" />
+        <p className="mt-2 text-[10px] text-white/70 font-medium text-center leading-tight">CRM & Téléphonie d'entreprise</p>
       </div>
 
       <nav className="mt-2 flex-1 space-y-1 px-3">
@@ -124,9 +119,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <Menu className="h-5 w-5" />
           </button>
           <div className="flex items-center gap-2">
-            <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary-500 shadow-sm shadow-primary-500/20">
-              <Phone className="h-3.5 w-3.5 text-white" />
-            </div>
+            <img src="/logo.png" alt="RingOver" className="h-7 w-7 rounded-md" />
             <span className="text-sm font-bold text-gray-900">RingOver</span>
           </div>
         </div>
