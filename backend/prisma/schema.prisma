@@ -1,0 +1,79 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Team {
+  id          String       @id @default(cuid())
+  name        String
+  createdAt   DateTime     @default(now())
+  users       User[]
+  invitations Invitation[]
+  contacts    Contact[]
+}
+
+model User {
+  id              String   @id @default(cuid())
+  email           String   @unique
+  passwordHash    String
+  name            String
+  role            String   @default("AGENT") // ADMIN | MANAGER | AGENT
+  status          String   @default("ACTIVE") // ACTIVE | INACTIVE
+  phoneExtension  String?
+  teamId          String
+  team            Team     @relation(fields: [teamId], references: [id])
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  sentInvitations Invitation[] @relation("InvitedBy")
+  ownedContacts   Contact[]    @relation("ContactOwner")
+
+  @@index([email])
+  @@index([teamId])
+}
+
+model Invitation {
+  id          String   @id @default(cuid())
+  email       String
+  role        String   // ADMIN | MANAGER | AGENT
+  token       String   @unique
+  status      String   @default("PENDING") // PENDING | ACCEPTED | EXPIRED
+  expiresAt   DateTime
+  teamId      String
+  team        Team     @relation(fields: [teamId], references: [id])
+  invitedById String
+  invitedBy   User     @relation("InvitedBy", fields: [invitedById], references: [id])
+  createdAt   DateTime @default(now())
+
+  @@unique([email, status], name: "unique_pending_email")
+  @@index([token])
+  @@index([teamId])
+}
+
+model Contact {
+  id        String    @id @default(cuid())
+  name      String
+  company   String?
+  phone     String
+  email     String?
+  tags      String?   // Stored as JSON string
+  notes     String?
+  
+  ownerId   String?
+  owner     User?     @relation("ContactOwner", fields: [ownerId], references: [id])
+  
+  teamId    String
+  team      Team      @relation(fields: [teamId], references: [id])
+  
+  deletedAt DateTime? // Soft delete pour RGPD
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([teamId, name])
+  @@index([teamId, phone])
+  @@index([teamId, email])
+}
