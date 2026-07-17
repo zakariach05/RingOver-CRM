@@ -1,6 +1,6 @@
 # Cahier des charges — Parties 3 & 4
 
-> Pipeline commercial (Deals) et Téléphonie (Dialer, click-to-call, historique)  
+> Pipeline commercial (Deals) et Téléphonie (Dialer, click-to-call, historique 
 > Références : F-20 à F-24 (Deals), F-30 à F-36, F-40 à F-42 (Téléphonie)
 
 ---
