@@ -175,7 +175,6 @@ export default function RegisterPage() {
               <input
                 id="token"
                 type="text"
-                required
                 value={manualToken}
                 onChange={(e) => setManualToken(e.target.value)}
                 onBlur={handleManualTokenBlur}
