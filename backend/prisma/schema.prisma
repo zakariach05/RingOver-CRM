@@ -1,0 +1,174 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// DealStage values: LEAD | QUALIFIED | PROPOSAL | NEGOTIATION | WON | LOST
+// CallDirection values: INBOUND | OUTBOUND
+// CallStatus values: INITIATED | RINGING | ANSWERED | COMPLETED | FAILED | NO_ANSWER | MISSED
+// Note: SQLite doesn't support native enums, so these are stored as String with app-level validation.
+
+model Team {
+  id          String       @id @default(cuid())
+  name        String
+  createdAt   DateTime     @default(now())
+  users       User[]
+  invitations Invitation[]
+  contacts    Contact[]
+  deals       Deal[]
+  calls       Call[]
+  sms         Sms[]
+  notifications Notification[]
+}
+
+model User {
+  id              String   @id @default(cuid())
+  email           String   @unique
+  passwordHash    String
+  name            String
+  role            String   @default("AGENT") // ADMIN | MANAGER | AGENT
+  status          String   @default("ACTIVE") // ACTIVE | INACTIVE
+  phoneExtension  String?
+  teamId          String
+  team            Team     @relation(fields: [teamId], references: [id])
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  sentInvitations Invitation[] @relation("InvitedBy")
+  ownedContacts   Contact[]    @relation("ContactOwner")
+  ownedDeals      Deal[]         @relation("DealOwner")
+  calls           Call[]         @relation("CallAgent")
+  sentSms         Sms[]          @relation("SmsSender")
+  notifications   Notification[] @relation("NotificationUser")
+
+  @@index([email])
+  @@index([teamId])
+}
+
+model Invitation {
+  id          String   @id @default(cuid())
+  email       String
+  role        String   // ADMIN | MANAGER | AGENT
+  token       String   @unique
+  status      String   @default("PENDING") // PENDING | ACCEPTED | EXPIRED
+  expiresAt   DateTime
+  teamId      String
+  team        Team     @relation(fields: [teamId], references: [id])
+  invitedById String
+  invitedBy   User     @relation("InvitedBy", fields: [invitedById], references: [id])
+  createdAt   DateTime @default(now())
+
+  @@unique([email, status], name: "unique_pending_email")
+  @@index([token])
+  @@index([teamId])
+}
+
+model Contact {
+  id        String    @id @default(cuid())
+  name      String
+  company   String?
+  phone     String
+  email     String?
+  tags      String?   // Stored as JSON string
+  notes     String?
+
+  ownerId   String?
+  owner     User?     @relation("ContactOwner", fields: [ownerId], references: [id])
+
+  teamId    String
+  team      Team      @relation(fields: [teamId], references: [id])
+
+  deals     Deal[]
+  calls     Call[]
+  sms       Sms[]
+
+  deletedAt DateTime? // Soft delete pour RGPD
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([teamId, name])
+  @@index([teamId, phone])
+  @@index([teamId, email])
+}
+
+model Deal {
+  id        String    @id @default(cuid())
+  title     String
+  value     Float
+  stage     String    @default("LEAD")
+  contactId String?
+  contact   Contact?  @relation(fields: [contactId], references: [id])
+  ownerId   String
+  owner     User      @relation("DealOwner", fields: [ownerId], references: [id])
+  teamId    String
+  team      Team      @relation(fields: [teamId], references: [id])
+  closedAt  DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([teamId, stage])
+}
+
+model Call {
+  id            String        @id @default(cuid())
+  fromNumber    String
+  toNumber      String
+  direction     String
+  status        String
+  duration      Int?
+  agentId       String
+  agent         User          @relation("CallAgent", fields: [agentId], references: [id])
+  contactId     String?
+  contact       Contact?      @relation(fields: [contactId], references: [id])
+  note          String?
+  recordingUrl  String?
+  twilioCallSid String?
+  startedAt     DateTime      @default(now())
+  endedAt       DateTime?
+  teamId        String
+  team          Team          @relation(fields: [teamId], references: [id])
+
+  @@index([teamId, agentId, startedAt])
+  @@index([teamId, status])
+}
+
+model Sms {
+  id          String    @id @default(cuid())
+  toNumber    String
+  fromNumber  String
+  body        String
+  status      String    @default("SENT") // SENDING | SENT | FAILED | DRAFT
+  agentId     String
+  agent       User      @relation("SmsSender", fields: [agentId], references: [id])
+  contactId   String?
+  contact     Contact?  @relation(fields: [contactId], references: [id])
+  teamId      String
+  team        Team      @relation(fields: [teamId], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([teamId, agentId, createdAt])
+  @@index([teamId, contactId])
+  @@index([teamId, status])
+}
+
+model Notification {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation("NotificationUser", fields: [userId], references: [id])
+  type        String    // SMS_SENT | SMS_RECEIVED | DEAL_CREATED | CONTACT_CREATED | CALL_ENDED | CALL_MISSED | SYSTEM
+  title       String
+  body        String
+  link        String?   // Optional route to navigate to
+  read        Boolean   @default(false)
+  teamId      String
+  team        Team      @relation(fields: [teamId], references: [id])
+  createdAt   DateTime  @default(now())
+
+  @@index([userId, read, createdAt])
+  @@index([teamId, createdAt])
+}
