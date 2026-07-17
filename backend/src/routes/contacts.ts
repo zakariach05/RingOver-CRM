@@ -83,8 +83,12 @@ router.get('/', async (req, res) => {
     }
 
     if (tags) {
-      const tagList = (tags as string).split(',')
-      where.tags = { contains: tagList[0] }
+      const tagList = (tags as string).split(',').map((t) => t.trim()).filter(Boolean)
+      if (tagList.length === 1) {
+        where.tags = { contains: tagList[0] }
+      } else if (tagList.length > 1) {
+        where.AND = tagList.map((tag) => ({ tags: { contains: tag } }))
+      }
     }
 
     const [contacts, total] = await Promise.all([
@@ -163,9 +167,29 @@ router.delete('/:id', async (req, res) => {
       return res.status(404).json({ error: 'CONTACT_NOT_FOUND' })
     }
 
+    const openDeals = await prisma.deal.findMany({
+      where: { contactId: contact.id, stage: { notIn: ['WON', 'LOST'] } },
+      select: { id: true, title: true },
+    })
+
+    if (openDeals.length > 0) {
+      return res.status(409).json({
+        error: 'CONTACT_HAS_OPEN_DEALS',
+        deals: openDeals,
+      })
+    }
+
     await prisma.contact.update({
       where: { id: req.params.id },
-      data: { deletedAt: new Date() },
+      data: {
+        deletedAt: new Date(),
+        name: 'Anonyme',
+        phone: '',
+        email: null,
+        company: null,
+        notes: null,
+        tags: null,
+      },
     })
     return res.json({ action: 'deleted' })
   } catch (error) {

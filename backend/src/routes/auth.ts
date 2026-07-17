@@ -3,9 +3,25 @@ import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { z } from 'zod'
 import { prisma } from '../utils/prisma'
+import { authenticate } from '../types'
 
 const router = Router()
 const JWT_SECRET = process.env.JWT_SECRET || 'default-secret'
+
+router.get('/me', authenticate, async (req, res) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: req.user!.id },
+      select: { id: true, email: true, name: true, role: true, teamId: true },
+    })
+    if (!user || user.role !== req.user!.role) {
+      return res.status(401).json({ error: 'USER_NOT_FOUND' })
+    }
+    return res.json(user)
+  } catch {
+    return res.status(500).json({ error: 'INTERNAL_ERROR' })
+  }
+})
 
 const registerSchema = z.object({
   email: z.string().email(),

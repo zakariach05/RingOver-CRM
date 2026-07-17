@@ -85,6 +85,31 @@
   }
 }
 
+@keyframes slideInRight {
+  0% { opacity: 0; transform: translateX(100%); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.3s ease-out;
+}
+
+.kanban-scroll {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+.kanban-scroll::-webkit-scrollbar {
+  height: 4px;
+}
+.kanban-scroll::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 rounded-full;
+}
+
+:focus-visible {
+  @apply outline-none ring-2 ring-primary-500/40 ring-offset-2;
+}
+
 @media (max-width: 639px) {
   .input-field {
     @apply text-base;

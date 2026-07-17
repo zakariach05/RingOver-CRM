@@ -4,6 +4,11 @@ import dotenv from 'dotenv'
 import authRoutes from './routes/auth'
 import teamRoutes from './routes/team'
 import contactsRoutes from './routes/contacts'
+import dealsRoutes from './routes/deals'
+import callsRoutes from './routes/calls'
+import webhooksRoutes from './routes/webhooks'
+import smsRoutes from './routes/sms'
+import notificationsRoutes from './routes/notifications'
 
 // Load .env only outside of test env.
 // In tests, jest.env.js (setupFiles) already sets the required vars BEFORE
@@ -21,6 +26,11 @@ app.use(express.json())
 app.use('/auth', authRoutes)
 app.use('/team', teamRoutes)
 app.use('/contacts', contactsRoutes)
+app.use('/deals', dealsRoutes)
+app.use('/api/calls', callsRoutes)
+app.use('/api/webhooks', webhooksRoutes)
+app.use('/api/sms', smsRoutes)
+app.use('/api/notifications', notificationsRoutes)
 
 app.get('/health', (_req, res) => res.json({ status: 'ok' }))
 

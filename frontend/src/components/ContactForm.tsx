@@ -3,7 +3,7 @@ import { Contact, ContactFormData } from '../types/contact'
 
 interface ContactFormProps {
   initialData?: Contact | null
-  onSubmit: (data: ContactFormData) => Promise<void>
+  onSubmit: (data: ContactFormData) => Promise<{ warning?: string; duplicateName?: string } | void>
   onCancel: () => void
   isLoading?: boolean
 }
@@ -21,6 +21,7 @@ export default function ContactForm({ initialData, onSubmit, onCancel, isLoading
 
   const [tagInput, setTagInput] = useState('')
   const [validationError, setValidationError] = useState<string | null>(null)
+  const [duplicateWarning, setDuplicateWarning] = useState<string | null>(null)
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -36,7 +37,11 @@ export default function ContactForm({ initialData, onSubmit, onCancel, isLoading
     }
 
     setValidationError(null)
-    await onSubmit({ ...formData, name: formData.name.trim(), phone, email: formData.email.trim() })
+    setDuplicateWarning(null)
+    const result = await onSubmit({ ...formData, name: formData.name.trim(), phone, email: formData.email.trim() })
+    if (result && 'warning' in result && result.warning === 'DUPLICATE_PHONE') {
+      setDuplicateWarning(`Un contact avec ce téléphone existe déjà (${result.duplicateName}).`)
+    }
   }
 
   const handleAddTag = () => {
@@ -55,6 +60,11 @@ export default function ContactForm({ initialData, onSubmit, onCancel, isLoading
       {validationError && (
         <div role="alert" className="p-3 bg-danger-50 text-danger-700 border border-danger-200 rounded-lg text-sm">
           {validationError}
+        </div>
+      )}
+      {duplicateWarning && (
+        <div className="p-3 bg-amber-50 text-amber-700 border border-amber-200 rounded-lg text-sm flex items-center gap-2">
+          <span className="font-medium">Attention :</span> {duplicateWarning}
         </div>
       )}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

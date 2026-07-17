@@ -7,8 +7,8 @@
     "dev": "node node_modules/prisma/build/index.js generate && node node_modules/tsx/dist/cli.mjs watch src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
-    "test": "node node_modules/jest/bin/jest.js",
-    "test:watch": "node node_modules/jest/bin/jest.js --watch",
+    "test": "node node_modules/jest/bin/jest.js --runInBand --forceExit",
+    "test:watch": "node node_modules/jest/bin/jest.js --runInBand --forceExit --watch",
     "db:migrate": "node node_modules/prisma/build/index.js migrate dev",
     "db:studio": "node node_modules/prisma/build/index.js studio",
     "db:seed": "node node_modules/tsx/dist/cli.mjs src/utils/seed.ts"

@@ -1,15 +1,12 @@
 import request from 'supertest'
 import express from 'express'
 import jwt from 'jsonwebtoken'
-import { PrismaClient } from '@prisma/client'
 import contactsRoutes from '../routes/contacts'
+import { prisma, cleanDb, createTestTeam, createTestUser, generateToken } from './helpers'
 
-const prisma = new PrismaClient()
 const app = express()
 app.use(express.json())
 app.use('/contacts', contactsRoutes)
-
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret'
 
 describe('Contacts API', () => {
   let adminToken: string
@@ -18,48 +15,29 @@ describe('Contacts API', () => {
   let agentId: string
 
   beforeAll(async () => {
-    // Nettoyer la base
-    // @ts-ignore
-    await prisma.contact.deleteMany()
-    await prisma.invitation.deleteMany()
-    await prisma.user.deleteMany()
-    await prisma.team.deleteMany()
+    await cleanDb()
 
-    // Créer une équipe
-    const team = await prisma.team.create({ data: { name: 'Test Team' } })
+    const team = await createTestTeam()
     teamId = team.id
 
-    // Créer un admin
-    const admin = await prisma.user.create({
-      data: {
-        email: 'admin-contact@ringover.com',
-        name: 'Admin',
-        passwordHash: 'hash',
-        role: 'ADMIN',
-        teamId: team.id
-      }
+    const admin = await createTestUser(teamId, {
+      email: 'admin-contact@ringover.com',
+      name: 'Admin',
+      role: 'ADMIN',
     })
     adminId = admin.id
-    adminToken = jwt.sign({ id: admin.id, role: admin.role, teamId: admin.teamId }, JWT_SECRET)
+    adminToken = generateToken(admin)
 
-    // Créer un agent
-    const agent = await prisma.user.create({
-      data: {
-        email: 'agent-contact@ringover.com',
-        name: 'Agent',
-        passwordHash: 'hash',
-        role: 'AGENT',
-        teamId: team.id
-      }
+    const agent = await createTestUser(teamId, {
+      email: 'agent-contact@ringover.com',
+      name: 'Agent',
+      role: 'AGENT',
     })
     agentId = agent.id
   })
 
   afterAll(async () => {
-    // @ts-ignore
-    await prisma.contact.deleteMany()
-    await prisma.user.deleteMany()
-    await prisma.team.deleteMany()
+    await cleanDb()
     await prisma.$disconnect()
   })
 

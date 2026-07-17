@@ -1,12 +1,20 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { Users, LayoutDashboard, LogOut, Contact as ContactIcon, Menu, X } from 'lucide-react'
+import { Users, LayoutDashboard, LogOut, Contact as ContactIcon, Menu, X, Handshake, Phone, History } from 'lucide-react'
+import CallBanner from './calls/CallBanner'
+import PostCallModal from './calls/PostCallModal'
+import SoundPreferenceToggle from './calls/SoundPreferenceToggle'
+import NotificationCenter from './notifications/NotificationCenter'
+import { useCallSounds } from '../hooks/useCallSounds'
+import { useCall } from '../contexts/CallContext'
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuth()
+  const { endedCall, dismissEndedCall } = useCall()
   const location = useLocation()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  useCallSounds()
 
   useEffect(() => {
     setSidebarOpen(false)
@@ -14,7 +22,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   const navItems = [
     { to: '/dashboard', label: 'Tableau de bord', icon: LayoutDashboard },
+    { to: '/deals', label: 'Affaires', icon: Handshake },
     { to: '/contacts', label: 'Contacts', icon: ContactIcon },
+    { to: '/dialer', label: 'Composeur', icon: Phone },
+    { to: '/calls', label: 'Historique', icon: History },
     { to: '/team', label: 'Équipe', icon: Users, roles: ['ADMIN', 'MANAGER'] },
   ]
 
@@ -65,14 +76,18 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <p className="text-sm font-medium text-white truncate">{user?.name}</p>
             <p className="text-xs text-gray-400 truncate">{user?.email}</p>
           </div>
+          <SoundPreferenceToggle />
         </div>
-        <button
-          onClick={logout}
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-gray-400 duration-150 hover:bg-red-500/15 hover:text-red-400 mt-1"
-        >
-          <LogOut className="h-4 w-4" />
-          Déconnexion
-        </button>
+        <div className="flex items-center gap-2 mt-1">
+          <button
+            onClick={logout}
+            className="flex flex-1 items-center gap-3 rounded-lg px-3 py-2 text-sm text-gray-400 duration-150 hover:bg-red-500/15 hover:text-red-400"
+          >
+            <LogOut className="h-4 w-4" />
+            Déconnexion
+          </button>
+          <NotificationCenter />
+        </div>
       </div>
     </>
   )
@@ -111,23 +126,30 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       )}
 
       <div className="flex-1 lg:pl-64">
-        <div className="sticky top-0 z-30 flex items-center gap-4 border-b border-gray-200 bg-white/80 backdrop-blur-xl px-4 py-3 lg:hidden">
+        <div className="sticky top-0 z-30 flex items-center gap-3 border-b border-gray-200 bg-white/80 backdrop-blur-xl px-4 py-2.5 lg:hidden">
           <button
             onClick={() => setSidebarOpen(true)}
             className="rounded-lg p-2 text-gray-600 hover:bg-gray-100 hover:text-gray-900 duration-150"
           >
             <Menu className="h-5 w-5" />
           </button>
-          <div className="flex items-center gap-2">
-            <img src="/logo.png" alt="RingOver" className="h-7 w-7 rounded-md" />
-            <span className="text-sm font-bold text-gray-900">RingOver</span>
+          <div className="flex items-center gap-2.5 flex-1">
+            <img src="/logo.png" alt="RingOver" className="h-8 w-auto rounded-md" />
+            <div className="hidden sm:block">
+              <span className="text-sm font-bold text-gray-900">RingOver</span>
+              <p className="text-[10px] text-gray-400 leading-none">CRM & Téléphonie</p>
+            </div>
           </div>
+          <NotificationCenter />
         </div>
 
         <main className="min-h-screen">
           {children}
         </main>
       </div>
+
+      <CallBanner />
+      {endedCall && <PostCallModal call={endedCall} onClose={dismissEndedCall} />}
     </div>
   )
 }

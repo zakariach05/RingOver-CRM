@@ -12,4 +12,5 @@ const dbPath = path.join(__dirname, 'prisma', 'test.db')
 process.env.DATABASE_URL = `file:${dbPath}`
 process.env.JWT_SECRET = 'test-secret-key'
 process.env.FRONTEND_URL = 'http://localhost:5173'
+process.env.WEBHOOK_SECRET = 'test-webhook-secret'
 

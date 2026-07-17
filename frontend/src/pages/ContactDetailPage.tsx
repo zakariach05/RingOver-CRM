@@ -1,17 +1,29 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Edit, Trash2, Phone, Mail, Building2, Calendar, PhoneOutgoing, MessageSquare } from 'lucide-react'
+import { ArrowLeft, Edit, Trash2, Phone, Mail, Building2, Calendar, PhoneOutgoing, PhoneIncoming, MessageSquare, Send } from 'lucide-react'
 import api from '../utils/api'
 import { Contact, ContactFormData } from '../types/contact'
 import ContactForm from '../components/ContactForm'
+import SmsComposer from '../components/sms/SmsComposer'
+import { callsApi, Call } from '../api/calls.api'
+import { useCall } from '../contexts/CallContext'
+import { openWhatsApp } from '../utils/contactUtils'
+
+interface TeamMember { id: string; name: string; role: string }
 
 export default function ContactDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { setActiveCall } = useCall()
   const [contact, setContact] = useState<Contact | null>(null)
   const [loading, setLoading] = useState(true)
   const [isEditOpen, setIsEditOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [calling, setCalling] = useState(false)
+  const [callHistory, setCallHistory] = useState<Call[]>([])
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([])
+  const [assigningOwner, setAssigningOwner] = useState(false)
+  const [showSmsComposer, setShowSmsComposer] = useState(false)
 
   const fetchContact = async () => {
     try {
@@ -25,9 +37,30 @@ export default function ContactDetailPage() {
     }
   }
 
+  const fetchCallHistory = async () => {
+    try {
+      const res = await callsApi.list({ q: contact?.phone || '', pageSize: '10' })
+      setCallHistory(res.data.calls.filter((c) => c.contactId === id))
+    } catch {}
+  }
+
+  const fetchTeamMembers = async () => {
+    try {
+      const res = await api.get('/team/members')
+      setTeamMembers(res.data.members)
+    } catch {}
+  }
+
   useEffect(() => {
     fetchContact()
   }, [id])
+
+  useEffect(() => {
+    if (contact) {
+      fetchCallHistory()
+      fetchTeamMembers()
+    }
+  }, [contact?.id])
 
   const handleUpdateContact = async (data: ContactFormData) => {
     try {
@@ -40,17 +73,57 @@ export default function ContactDetailPage() {
     }
   }
 
+  const handleAssignOwner = async (ownerId: string) => {
+    setAssigningOwner(true)
+    try {
+      await api.patch(`/contacts/${id}/owner`, { ownerId: ownerId || null })
+      fetchContact()
+    } catch {
+      alert("Erreur lors de l'assignation")
+    } finally {
+      setAssigningOwner(false)
+    }
+  }
+
+  const formatDuration = (seconds: number | null) => {
+    if (!seconds) return '-'
+    const m = Math.floor(seconds / 60)
+    const s = seconds % 60
+    return `${m}:${s.toString().padStart(2, '0')}`
+  }
+
   const handleDelete = async () => {
     if (window.confirm("Êtes-vous sûr de vouloir supprimer ce contact ? Il sera conservé de manière anonymisée.")) {
       setIsDeleting(true)
       try {
         await api.delete(`/contacts/${id}`)
         navigate('/contacts')
-      } catch (err) {
-        console.error(err)
-        alert("Erreur lors de la suppression")
+      } catch (err: any) {
+        if (err.response?.data?.error === 'CONTACT_HAS_OPEN_DEALS') {
+          const dealNames = err.response.data.deals.map((d: any) => d.title).join(', ')
+          alert(`Impossible de supprimer ce contact car il a des affaires ouvertes : ${dealNames}`)
+        } else {
+          alert("Erreur lors de la suppression")
+        }
         setIsDeleting(false)
       }
+    }
+  }
+
+  const handleCall = async () => {
+    if (!contact) return
+    setCalling(true)
+    try {
+      const res = await callsApi.initiate(contact.phone, contact.id)
+      setActiveCall(res.data.call)
+    } catch (err: any) {
+      if (err.response?.status === 409) {
+        alert('Vous êtes déjà en appel. Raccrochez d\'abord.')
+      } else {
+        alert("Erreur lors de l'initiation de l'appel")
+      }
+    } finally {
+      setCalling(false)
     }
   }
 
@@ -149,12 +222,23 @@ export default function ContactDetailPage() {
                 <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-50 text-gray-500 shrink-0">
                   <Calendar className="w-4 h-4" />
                 </div>
-                <div>
+                <div className="flex-1">
                   <div className="text-sm font-medium text-gray-900">
                     Créé le {new Date(contact.createdAt).toLocaleDateString('fr-FR')}
                   </div>
-                  <div className="text-xs text-gray-400">
-                    Propriétaire : {contact.owner?.name || 'Aucun'}
+                  <div className="text-xs text-gray-400 mt-1">
+                    Propriétaire :
+                    <select
+                      value={contact.ownerId || ''}
+                      onChange={(e) => handleAssignOwner(e.target.value)}
+                      disabled={assigningOwner}
+                      className="ml-1 text-xs bg-transparent border-b border-gray-300 focus:border-primary-500 outline-none"
+                    >
+                      <option value="">Aucun</option>
+                      {teamMembers.map((m) => (
+                        <option key={m.id} value={m.id}>{m.name}</option>
+                      ))}
+                    </select>
                   </div>
                 </div>
               </div>
@@ -187,17 +271,33 @@ export default function ContactDetailPage() {
           {/* Action Bar */}
           <div className="card p-4 bg-gradient-to-r from-gray-50 via-gray-100 to-gray-50 border-gray-200">
             <div className="flex justify-center gap-6 sm:justify-around">
-              <button className="flex flex-col items-center gap-2 p-3 text-primary-700 hover:bg-white/60 rounded-xl duration-150 hover:shadow-sm">
+              <button
+                onClick={handleCall}
+                disabled={calling}
+                className="flex flex-col items-center gap-2 p-3 text-primary-700 hover:bg-white/60 rounded-xl duration-150 hover:shadow-sm disabled:opacity-50"
+              >
                 <div className="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center">
                   <PhoneOutgoing className="w-5 h-5" />
                 </div>
-                <span className="text-sm font-medium">Appeler</span>
+                <span className="text-sm font-medium">{calling ? 'Appel...' : 'Appeler'}</span>
               </button>
-              <button className="flex flex-col items-center gap-2 p-3 text-gray-700 hover:bg-white/60 rounded-xl duration-150 hover:shadow-sm">
+              <button
+                onClick={() => setShowSmsComposer(true)}
+                className="flex flex-col items-center gap-2 p-3 text-gray-700 hover:bg-white/60 rounded-xl duration-150 hover:shadow-sm"
+              >
                 <div className="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center">
                   <MessageSquare className="w-5 h-5" />
                 </div>
                 <span className="text-sm font-medium">SMS</span>
+              </button>
+              <button
+                onClick={() => openWhatsApp(contact.phone)}
+                className="flex flex-col items-center gap-2 p-3 text-green-700 hover:bg-white/60 rounded-xl duration-150 hover:shadow-sm"
+              >
+                <div className="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center">
+                  <Send className="w-5 h-5" />
+                </div>
+                <span className="text-sm font-medium">WhatsApp</span>
               </button>
             </div>
           </div>
@@ -205,17 +305,57 @@ export default function ContactDetailPage() {
           {/* Activity Timeline */}
           <div className="card p-5 sm:p-6">
             <h2 className="text-base font-bold text-gray-900 mb-4">Historique des interactions</h2>
-            <div className="text-center py-8">
-              <div className="mx-auto w-12 h-12 bg-gray-100 rounded-2xl flex items-center justify-center mb-3">
-                <Calendar className="w-6 h-6 text-gray-400" />
+            {callHistory.length === 0 ? (
+              <div className="text-center py-8">
+                <div className="mx-auto w-12 h-12 bg-gray-100 rounded-2xl flex items-center justify-center mb-3">
+                  <Calendar className="w-6 h-6 text-gray-400" />
+                </div>
+                <p className="text-sm text-gray-500">Aucun appel enregistré pour ce contact.</p>
               </div>
-              <p className="text-sm text-gray-500">
-                L'historique des appels et des offres s'affichera ici une fois les modules activés.
-              </p>
-            </div>
+            ) : (
+              <div className="space-y-2">
+                {callHistory.map((call) => (
+                  <div key={call.id} className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors">
+                    <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
+                      {call.direction === 'INBOUND'
+                        ? <PhoneIncoming className="w-3.5 h-3.5 text-green-500" />
+                        : <PhoneOutgoing className="w-3.5 h-3.5 text-blue-500" />
+                      }
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900 truncate">
+                        {call.direction === 'INBOUND' ? 'Entrant' : 'Sortant'}
+                      </p>
+                      <p className="text-xs text-gray-400">
+                        {new Date(call.startedAt).toLocaleDateString('fr-FR')} · {formatDuration(call.duration)}
+                        {call.note ? ` · ${call.note}` : ''}
+                      </p>
+                    </div>
+                    <span className={`px-2 py-0.5 rounded-lg text-xs font-semibold ${
+                      call.status === 'COMPLETED' || call.status === 'ANSWERED'
+                        ? 'bg-green-100 text-green-700'
+                        : call.status === 'MISSED' || call.status === 'NO_ANSWER'
+                          ? 'bg-red-100 text-red-700'
+                          : 'bg-gray-100 text-gray-500'
+                    }`}>
+                      {call.status}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
+
+      {showSmsComposer && (
+        <SmsComposer
+          toNumber={contact.phone}
+          contactName={contact.name}
+          contactId={contact.id}
+          onClose={() => setShowSmsComposer(false)}
+        />
+      )}
     </div>
   )
 }

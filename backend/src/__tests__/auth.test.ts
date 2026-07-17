@@ -219,7 +219,7 @@ describe('GET /team/members', () => {
       .set('Authorization', `Bearer ${generateToken(admin)}`)
 
     expect(res.status).toBe(200)
-    expect(res.body).toHaveLength(2)
+    expect(res.body.members).toHaveLength(2)
   })
 })
 
