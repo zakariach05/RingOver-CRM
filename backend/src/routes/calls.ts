@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { z } from 'zod'
 import { prisma } from '../utils/prisma'
 import { authenticate } from '../types'
+import { invalidateTeam } from '../services/dashboardCache'
 
 const router = Router()
 
@@ -136,15 +137,18 @@ router.post('/initiate', authenticate, async (req, res) => {
       setTimeout(async () => {
         try {
           await prisma.call.update({ where: { id: call.id }, data: { status: 'RINGING' } })
+          invalidateTeam(req.user!.teamId)
         } catch {}
       }, 1000)
       setTimeout(async () => {
         try {
           await prisma.call.update({ where: { id: call.id }, data: { status: 'ANSWERED' } })
+          invalidateTeam(req.user!.teamId)
         } catch {}
       }, 3000)
     }
 
+    invalidateTeam(req.user!.teamId)
     return res.status(201).json({ call })
   } catch (error) {
     console.error('Initiate call error:', error)

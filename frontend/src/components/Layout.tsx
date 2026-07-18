@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { Users, LayoutDashboard, LogOut, Contact as ContactIcon, Menu, X, Handshake, Phone, History } from 'lucide-react'
+import { Users, LayoutDashboard, LogOut, Contact as ContactIcon, Menu, X, Handshake, Phone, History, MessageSquare } from 'lucide-react'
 import CallBanner from './calls/CallBanner'
 import PostCallModal from './calls/PostCallModal'
 import SoundPreferenceToggle from './calls/SoundPreferenceToggle'
@@ -26,6 +26,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     { to: '/contacts', label: 'Contacts', icon: ContactIcon },
     { to: '/dialer', label: 'Composeur', icon: Phone },
     { to: '/calls', label: 'Historique', icon: History },
+    { to: '/messages', label: 'Messages', icon: MessageSquare },
     { to: '/team', label: 'Équipe', icon: Users, roles: ['ADMIN', 'MANAGER'] },
   ]
 

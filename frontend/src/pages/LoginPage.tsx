@@ -96,9 +96,9 @@ export default function LoginForm() {
           </button>
 
           <div className="mt-4 text-center text-sm text-gray-500">
-            <a href="#" className="text-primary-600 hover:text-primary-700 font-medium hover:underline duration-150">
+            <Link to="/forgot-password" className="text-primary-600 hover:text-primary-700 font-medium hover:underline duration-150">
               Mot de passe oublié ?
-            </a>
+            </Link>
           </div>
 
           <p className="mt-6 text-center text-sm text-gray-500">

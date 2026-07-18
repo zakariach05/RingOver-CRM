@@ -33,6 +33,8 @@ model User {
   role            String   @default("AGENT") // ADMIN | MANAGER | AGENT
   status          String   @default("ACTIVE") // ACTIVE | INACTIVE
   phoneExtension  String?
+  resetToken      String?
+  resetTokenExpiry DateTime?
   teamId          String
   team            Team     @relation(fields: [teamId], references: [id])
   createdAt       DateTime @default(now())
@@ -47,6 +49,7 @@ model User {
 
   @@index([email])
   @@index([teamId])
+  @@index([resetToken])
 }
 
 model Invitation {

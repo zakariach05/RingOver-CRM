@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { z } from 'zod'
 import { prisma } from '../utils/prisma'
 import { authenticate, requireRole } from '../types'
+import { invalidateTeam } from '../services/dashboardCache'
 
 const router = Router()
 
@@ -128,6 +129,7 @@ router.post('/', authenticate, async (req, res) => {
       },
     })
 
+    invalidateTeam(req.user!.teamId)
     return res.status(201).json({ deal })
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -178,6 +180,7 @@ router.put('/:id', authenticate, async (req, res) => {
       },
     })
 
+    invalidateTeam(req.user!.teamId)
     return res.json(deal)
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -233,6 +236,7 @@ router.patch('/:id/stage', authenticate, async (req, res) => {
       },
     })
 
+    invalidateTeam(req.user!.teamId)
     return res.json(deal)
   } catch (error) {
     console.error('Update deal stage error:', error)
@@ -261,6 +265,7 @@ router.patch('/:id/owner', authenticate, requireRole('ADMIN', 'MANAGER'), async 
       },
     })
 
+    invalidateTeam(req.user!.teamId)
     return res.json(deal)
   } catch (error) {
     console.error('Reassign deal error:', error)
@@ -280,6 +285,7 @@ router.delete('/:id', authenticate, async (req, res) => {
     }
 
     await prisma.deal.delete({ where: { id: req.params.id } })
+    invalidateTeam(req.user!.teamId)
     return res.status(204).send()
   } catch (error) {
     console.error('Delete deal error:', error)

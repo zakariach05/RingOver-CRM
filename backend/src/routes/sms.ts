@@ -157,6 +157,113 @@ router.get('/', async (req, res) => {
   }
 })
 
+router.get('/conversations', async (req, res) => {
+  try {
+    const where: any = { teamId: req.user!.teamId, status: { notIn: ['DRAFT'] } }
+
+    if (req.user!.role === 'AGENT') {
+      where.agentId = req.user!.id
+    }
+
+    const allSms = await prisma.sms.findMany({
+      where,
+      include: {
+        contact: { select: { id: true, name: true, phone: true } },
+        agent: { select: { id: true, name: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+    })
+
+    const convMap = new Map<string, {
+      contactId: string | null
+      contactName: string | null
+      contactPhone: string | null
+      phoneNumber: string
+      lastMessage: string
+      lastAt: Date
+      unread: number
+      messageCount: number
+      agents: string[]
+    }>()
+
+    for (const sms of allSms) {
+      const key = sms.contactId || sms.toNumber
+      const existing = convMap.get(key)
+      const agentLabel = sms.agent?.name || 'Inconnu'
+
+      if (!existing) {
+        convMap.set(key, {
+          contactId: sms.contactId,
+          contactName: sms.contact?.name || null,
+          contactPhone: sms.contact?.phone || null,
+          phoneNumber: sms.toNumber,
+          lastMessage: sms.body,
+          lastAt: sms.createdAt,
+          unread: 0,
+          messageCount: 1,
+          agents: [agentLabel],
+        })
+      } else {
+        existing.messageCount++
+        if (!existing.agents.includes(agentLabel)) {
+          existing.agents.push(agentLabel)
+        }
+      }
+    }
+
+    const conversations = Array.from(convMap.values())
+      .sort((a, b) => b.lastAt.getTime() - a.lastAt.getTime())
+
+    return res.json({ conversations })
+  } catch (error) {
+    console.error('List conversations error:', error)
+    return res.status(500).json({ error: 'INTERNAL_ERROR' })
+  }
+})
+
+router.get('/conversation/:contactIdOrPhone', async (req, res) => {
+  try {
+    const { contactIdOrPhone } = req.params
+    const { page = '1', pageSize = '50' } = req.query as Record<string, string>
+    const p = Math.max(1, parseInt(page))
+    const ps = Math.min(100, Math.max(1, parseInt(pageSize)))
+
+    const where: any = { teamId: req.user!.teamId, status: { notIn: ['DRAFT'] } }
+
+    if (contactIdOrPhone.startsWith('cnt_') || contactIdOrPhone.length > 10) {
+      where.contactId = contactIdOrPhone
+    } else {
+      where.OR = [
+        { toNumber: contactIdOrPhone },
+        { fromNumber: contactIdOrPhone },
+      ]
+    }
+
+    if (req.user!.role === 'AGENT') {
+      where.agentId = req.user!.id
+    }
+
+    const [messages, total] = await Promise.all([
+      prisma.sms.findMany({
+        where,
+        include: {
+          contact: { select: { id: true, name: true, phone: true } },
+          agent: { select: { id: true, name: true } },
+        },
+        orderBy: { createdAt: 'asc' },
+        skip: (p - 1) * ps,
+        take: ps,
+      }),
+      prisma.sms.count({ where }),
+    ])
+
+    return res.json({ messages, total, page: p, pageSize: ps })
+  } catch (error) {
+    console.error('Get conversation error:', error)
+    return res.status(500).json({ error: 'INTERNAL_ERROR' })
+  }
+})
+
 router.get('/:id', async (req, res) => {
   try {
     const sms = await prisma.sms.findUnique({
