@@ -1,6 +1,6 @@
 <div align="center">
 
-<img width="100%" src="https://capsule-render.vercel.app/api?type=waving&amp;color=0:0A0E12,50:1a2530,100:F5A623&amp;height=220&amp;section=header&amp;text=RingOver%20CRM&amp;fontSize=62&amp;fontColor=F5F5F5&amp;animation=fadeIn&amp;fontAlignY=38&amp;desc=CRM%20cloud%20%26%20t%C3%A9l%C3%A9phonie%20d'entreprise&amp;descAlignY=58&amp;descSize=19&amp;descColor=E8EDF2" alt="RingOver CRM banner"/>
+<img width="100%" src="https://capsule-render.vercel.app/api?type=waving&amp;color=0:0A0E12,50:1a2530,100:F5A623&amp;height=220&amp;section=header&amp;text=RingOver%20CRM&amp;fontSize=62&amp;fontColor=F5F5F5&amp;animation=fadeIn&amp;fontAlignY=38&amp;desc=CRM%20cloud%20et%20t%C3%A9l%C3%A9phonie%20d%27entreprise&amp;descAlignY=58&amp;descSize=19&amp;descColor=E8EDF2" alt="RingOver CRM banner"/>
 
 [![Node](https://img.shields.io/badge/node-%3E%3D18-339933?logo=node.js&logoColor=white)](https://nodejs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
