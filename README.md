@@ -1,8 +1,6 @@
 <div align="center">
 
-# 📞 RingOver CRM
-
-### CRM cloud & téléphonie d'entreprise
+<img width="100%" src="https://capsule-render.vercel.app/api?type=waving&color=0:0A0E12,50:1a2530,100:F5A623&height=220&section=header&text=RingOver%20CRM&fontSize=62&fontColor=F5F5F5&animation=fadeIn&fontAlignY=38&desc=CRM%20cloud%20%26%20t%C3%A9l%C3%A9phonie%20d'entreprise&descAlignY=58&descSize=19&descColor=E8EDF2" alt="RingOver CRM banner"/>
 
 [![Node](https://img.shields.io/badge/node-%3E%3D18-339933?logo=node.js&logoColor=white)](https://nodejs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
@@ -11,9 +9,19 @@
 [![Tests](https://img.shields.io/badge/tests-92%20passed-4ADE80?logo=jest&logoColor=white)]()
 [![License](https://img.shields.io/badge/license-private-lightgrey)]()
 
-Gestion de contacts · Pipeline de ventes · Appels · SMS · Dashboard analytique
+<a href="#-présentation">
+  <img src="https://readme-typing-svg.demolab.com?font=IBM+Plex+Mono&weight=600&size=20&pause=1200&color=F5A623&center=true&vCenter=true&width=640&lines=Gestion+de+contacts+avec+soft+delete+RGPD;Pipeline+de+ventes+Kanban+%3A+LEAD+%E2%86%92+WON+%2F+LOST;T%C3%A9l%C3%A9phonie+Twilio+(ou+mock+en+dev);SMS+%2B+conversations+group%C3%A9es+par+contact;Dashboard+analytique+en+temps+r%C3%A9el" alt="Typing SVG"/>
+</a>
+
+<br/>
+
+<img src="https://skillicons.dev/icons?i=react,vite,ts,tailwind,nodejs,express,prisma,sqlite,jest" alt="stack icons"/>
 
 </div>
+
+<br/>
+
+<img width="100%" src="https://capsule-render.vercel.app/api?type=rect&color=0:F5A623,100:2DD4C8&height=3" alt="divider"/>
 
 ---
 
@@ -288,6 +296,8 @@ POST /auth/login { email, password }
 
 </details>
 
+<img width="100%" src="https://capsule-render.vercel.app/api?type=rect&color=0:2DD4C8,100:0A0E12&height=2" alt="divider"/>
+
 ## 🔌 Référence API
 
 Headers requis sur toutes les routes authentifiées :
@@ -523,6 +533,8 @@ cd RingOver\frontend
 npm run build   # → dossier dist/ à servir
 ```
 
+<img width="100%" src="https://capsule-render.vercel.app/api?type=rect&color=0:F5A623,100:0A0E12&height=2" alt="divider"/>
+
 ## 🛠 Dépannage
 
 <details>
@@ -624,10 +636,12 @@ npx prisma db push --force-reset --accept-data-loss
 | Build prod backend | `cd backend && npm run build && npm start` |
 | Build prod frontend | `cd frontend && npm run build` |
 
----
+<img width="100%" src="https://capsule-render.vercel.app/api?type=rect&color=0:2DD4C8,100:F5A623&height=3" alt="divider"/>
 
 <div align="center">
+<br/>
 
-Fait avec ☕ pour l'équipe RingOver
+<img src="https://readme-typing-svg.demolab.com?font=IBM+Plex+Mono&weight=500&size=14&pause=1500&color=8592A0&center=true&vCenter=true&width=500&lines=Fait+avec+%E2%98%95+pour+l'%C3%A9quipe+RingOver;git+clone+%E2%80%A2+npm+install+%E2%80%A2+npx+prisma+db+push+%E2%80%A2+npm+run+dev" alt="footer typing"/>
 
+<img width="100%" src="https://capsule-render.vercel.app/api?type=waving&color=0:F5A623,100:0A0E12&height=120&section=footer" alt="footer wave"/>
 </div>
