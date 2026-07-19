@@ -1,6 +1,6 @@
 <div align="center">
 
-<img width="100%" src="https://capsule-render.vercel.app/api?type=waving&amp;color=0:0A0E12,50:1a2530,100:F5A623&amp;height=220&amp;section=header&amp;text=RingOver%20CRM&amp;fontSize=62&amp;fontColor=F5F5F5&amp;animation=fadeIn&amp;fontAlignY=38&amp;desc=CRM%20cloud%20et%20t%C3%A9l%C3%A9phonie%20d%27entreprise&amp;descAlignY=58&amp;descSize=19&amp;descColor=E8EDF2" alt="RingOver CRM banner"/>
+<img width="100%" src="https://capsule-render.vercel.app/api?type=waving&color=0:0A0E12,50:1a2530,100:F5A623&height=220&section=header&text=RingOver%20CRM&fontSize=62&fontColor=F5F5F5&animation=fadeIn&fontAlignY=38&desc=CRM%20cloud%20et%20t%C3%A9l%C3%A9phonie%20d%27entreprise&descAlignY=58&descSize=19&descColor=E8EDF2" alt="RingOver CRM banner"/>
 
 [![Node](https://img.shields.io/badge/node-%3E%3D18-339933?logo=node.js&logoColor=white)](https://nodejs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
@@ -10,7 +10,7 @@
 [![License](https://img.shields.io/badge/license-private-lightgrey)]()
 
 <a href="#-présentation">
-  <img src="https://readme-typing-svg.demolab.com?font=IBM+Plex+Mono&amp;weight=600&amp;size=20&amp;pause=1200&amp;color=F5A623&amp;center=true&amp;vCenter=true&amp;width=640&amp;lines=Gestion+de+contacts+avec+soft+delete+RGPD;Pipeline+de+ventes+Kanban+%3A+LEAD+%E2%86%92+WON+%2F+LOST;T%C3%A9l%C3%A9phonie+Twilio+(ou+mock+en+dev);SMS+%2B+conversations+group%C3%A9es+par+contact;Dashboard+analytique+en+temps+r%C3%A9el" alt="Typing SVG"/>
+  <img src="https://readme-typing-svg.demolab.com?font=IBM+Plex+Mono&weight=600&size=20&pause=1200&color=F5A623&center=true&vCenter=true&width=640&lines=Gestion+de+contacts+avec+soft+delete+RGPD;Pipeline+de+ventes+Kanban+%3A+LEAD+%E2%86%92+WON+%2F+LOST;T%C3%A9l%C3%A9phonie+Twilio+(ou+mock+en+dev);SMS+%2B+conversations+group%C3%A9es+par+contact;Dashboard+analytique+en+temps+r%C3%A9el" alt="Typing SVG"/>
 </a>
 
 <br/>
@@ -21,7 +21,7 @@
 
 <br/>
 
-<img width="100%" src="https://capsule-render.vercel.app/api?type=rect&amp;color=0:F5A623,100:2DD4C8&amp;height=3" alt="divider"/>
+<img width="100%" src="https://capsule-render.vercel.app/api?type=rect&color=0:F5A623,100:2DD4C8&height=3" alt="divider"/>
 
 ---
 
@@ -35,6 +35,7 @@
 - [Lancement](#-lancement)
 - [Authentification](#-authentification)
 - [Fonctionnalités](#-fonctionnalités)
+- [Captures d'écran](#-captures-décran)
 - [Référence API](#-référence-api)
 - [Tests](#-tests)
 - [Mode Twilio](#-mode-twilio)
@@ -296,7 +297,90 @@ POST /auth/login { email, password }
 
 </details>
 
-<img width="100%" src="https://capsule-render.vercel.app/api?type=rect&amp;color=0:2DD4C8,100:0A0E12&amp;height=2" alt="divider"/>
+<img width="100%" src="https://capsule-render.vercel.app/api?type=rect&color=0:2DD4C8,100:0A0E12&height=2" alt="divider"/>
+
+## 📸 Captures d'écran
+
+<div align="center">
+
+<img src="https://readme-typing-svg.demolab.com?font=IBM+Plex+Mono&weight=500&size=16&pause=1500&color=2DD4C8&center=true&vCenter=true&width=500&lines=Authentification+%E2%80%A2+Dashboard+%E2%80%A2+Contacts;Pipeline+de+ventes+%E2%80%A2+T%C3%A9l%C3%A9phonie;SMS+%E2%80%A2+Notifications+%E2%80%A2+%C3%89quipe" alt="Screenshots typing"/>
+
+</div>
+
+<br/>
+
+<details open>
+<summary><strong>🔐 Authentification</strong></summary>
+
+<br/>
+
+<p align="center">
+  <img src="./docs/images-projet/login.png" width="49%" alt="Page de connexion"/>
+  <img src="./docs/images-projet/register.png" width="49%" alt="Page d'inscription"/>
+</p>
+
+</details>
+
+<details>
+<summary><strong>📊 Dashboard</strong></summary>
+
+<br/>
+
+<p align="center">
+  <img src="./docs/images-projet/dashbord.png" width="100%" alt="Dashboard analytique"/>
+</p>
+
+</details>
+
+<details>
+<summary><strong>💼 Pipeline de ventes</strong></summary>
+
+<br/>
+
+<p align="center">
+  <img src="./docs/images-projet/deals.png" width="49%" alt="Vue Kanban des deals"/>
+  <img src="./docs/images-projet/deals2.png" width="49%" alt="Détail d'un deal"/>
+</p>
+
+</details>
+
+<details>
+<summary><strong>☎️ Téléphonie</strong></summary>
+
+<br/>
+
+<p align="center">
+  <img src="./docs/images-projet/dialer.png" width="49%" alt="Composeur d'appel"/>
+  <img src="./docs/images-projet/calls.png" width="49%" alt="Historique des appels"/>
+</p>
+
+</details>
+
+<details>
+<summary><strong>💬 SMS & Contacts</strong></summary>
+
+<br/>
+
+<p align="center">
+  <img src="./docs/images-projet/messages.png" width="49%" alt="Conversations SMS"/>
+  <img src="./docs/images-projet/contact.png" width="49%" alt="Fiche contact"/>
+</p>
+
+</details>
+
+<details>
+<summary><strong>🔔 Notifications & Équipe</strong></summary>
+
+<br/>
+
+<p align="center">
+  <img src="./docs/images-projet/notification.png" width="49%" alt="Centre de notifications"/>
+  <img src="./docs/images-projet/teams.png" width="49%" alt="Gestion d'équipe"/>
+</p>
+
+</details>
+
+<img width="100%" src="https://capsule-render.vercel.app/api?type=rect&color=0:F5A623,100:0A0E12&height=2" alt="divider"/>
 
 ## 🔌 Référence API
 
@@ -533,7 +617,7 @@ cd RingOver\frontend
 npm run build   # → dossier dist/ à servir
 ```
 
-<img width="100%" src="https://capsule-render.vercel.app/api?type=rect&amp;color=0:F5A623,100:0A0E12&amp;height=2" alt="divider"/>
+<img width="100%" src="https://capsule-render.vercel.app/api?type=rect&color=0:F5A623,100:0A0E12&height=2" alt="divider"/>
 
 ## 🛠 Dépannage
 
@@ -636,12 +720,12 @@ npx prisma db push --force-reset --accept-data-loss
 | Build prod backend | `cd backend && npm run build && npm start` |
 | Build prod frontend | `cd frontend && npm run build` |
 
-<img width="100%" src="https://capsule-render.vercel.app/api?type=rect&amp;color=0:2DD4C8,100:F5A623&amp;height=3" alt="divider"/>
+<img width="100%" src="https://capsule-render.vercel.app/api?type=rect&color=0:2DD4C8,100:F5A623&height=3" alt="divider"/>
 
 <div align="center">
 <br/>
 
-<img src="https://readme-typing-svg.demolab.com?font=IBM+Plex+Mono&amp;weight=500&amp;size=14&amp;pause=1500&amp;color=8592A0&amp;center=true&amp;vCenter=true&amp;width=500&amp;lines=Fait+avec+%E2%98%95+pour+l'%C3%A9quipe+RingOver;git+clone+%E2%80%A2+npm+install+%E2%80%A2+npx+prisma+db+push+%E2%80%A2+npm+run+dev" alt="footer typing"/>
+<img src="https://readme-typing-svg.demolab.com?font=IBM+Plex+Mono&weight=500&size=14&pause=1500&color=8592A0&center=true&vCenter=true&width=500&lines=Fait+avec+%E2%98%95+pour+l'%C3%A9quipe+RingOver;git+clone+%E2%80%A2+npm+install+%E2%80%A2+npx+prisma+db+push+%E2%80%A2+npm+run+dev" alt="footer typing"/>
 
-<img width="100%" src="https://capsule-render.vercel.app/api?type=waving&amp;color=0:F5A623,100:0A0E12&amp;height=120&amp;section=footer" alt="footer wave"/>
+<img width="100%" src="https://capsule-render.vercel.app/api?type=waving&color=0:F5A623,100:0A0E12&height=120&section=footer" alt="footer wave"/>
 </div>
