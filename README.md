@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="./docs/images-projet/logo.png" width="120" alt="RingOver CRM logo"/>
+<img src="./docs/images-projet/logo.png" width="220" alt="RingOver CRM logo"/>
 
 [![Node](https://img.shields.io/badge/node-%3E%3D18-339933?logo=node.js&logoColor=white)](https://nodejs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
