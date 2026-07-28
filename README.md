@@ -1,8 +1,6 @@
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/oumayma728/RingOver/Zakaria/frontend/public/logo.png" width="120" alt="RingOver CRM logo"/>
-
-<img width="100%" src="https://capsule-render.vercel.app/api?type=waving&color=0:0A0E12,50:1a2530,100:F5A623&height=220&section=header&text=RingOver%20CRM&fontSize=62&fontColor=F5F5F5&animation=fadeIn&fontAlignY=38&desc=CRM%20cloud%20et%20t%C3%A9l%C3%A9phonie%20d%27entreprise&descAlignY=58&descSize=19&descColor=E8EDF2" alt="RingOver CRM banner"/>
+<img src="./docs/images-projet/logo.png" width="500" alt="RingOver CRM logo"/><br>
 
 [![Node](https://img.shields.io/badge/node-%3E%3D18-339933?logo=node.js&logoColor=white)](https://nodejs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
