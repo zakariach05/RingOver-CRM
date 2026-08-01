@@ -8,7 +8,6 @@ import dealsRoutes from './routes/deals'
 import callsRoutes from './routes/calls'
 import webhooksRoutes from './routes/webhooks'
 import smsRoutes from './routes/sms'
-import notificationsRoutes from './routes/notifications'
 import dashboardRoutes from './routes/dashboard'
 
 // Load .env only outside of test env.
@@ -31,7 +30,6 @@ app.use('/deals', dealsRoutes)
 app.use('/api/calls', callsRoutes)
 app.use('/api/webhooks', webhooksRoutes)
 app.use('/api/sms', smsRoutes)
-app.use('/api/notifications', notificationsRoutes)
 app.use('/api/dashboard', dashboardRoutes)
 
 app.get('/health', (_req, res) => res.json({ status: 'ok' }))

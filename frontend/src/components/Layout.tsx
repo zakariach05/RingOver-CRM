@@ -5,7 +5,6 @@ import { Users, LayoutDashboard, LogOut, Contact as ContactIcon, Menu, X, Handsh
 import CallBanner from './calls/CallBanner'
 import PostCallModal from './calls/PostCallModal'
 import SoundPreferenceToggle from './calls/SoundPreferenceToggle'
-import NotificationCenter from './notifications/NotificationCenter'
 import { useCallSounds } from '../hooks/useCallSounds'
 import { useCall } from '../contexts/CallContext'
 
@@ -87,7 +86,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <LogOut className="h-4 w-4" />
             Déconnexion
           </button>
-          <NotificationCenter />
         </div>
       </div>
     </>
@@ -141,7 +139,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <p className="text-[10px] text-gray-400 leading-none">CRM & Téléphonie</p>
             </div>
           </div>
-          <NotificationCenter />
         </div>
 
         <main className="min-h-screen">

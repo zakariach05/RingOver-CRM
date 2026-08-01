@@ -22,7 +22,6 @@ model Team {
   deals       Deal[]
   calls       Call[]
   sms         Sms[]
-  notifications Notification[]
 }
 
 model User {
@@ -45,7 +44,6 @@ model User {
   ownedDeals      Deal[]         @relation("DealOwner")
   calls           Call[]         @relation("CallAgent")
   sentSms         Sms[]          @relation("SmsSender")
-  notifications   Notification[] @relation("NotificationUser")
 
   @@index([email])
   @@index([teamId])
@@ -159,19 +157,3 @@ model Sms {
   @@index([teamId, status])
 }
 
-model Notification {
-  id          String    @id @default(cuid())
-  userId      String
-  user        User      @relation("NotificationUser", fields: [userId], references: [id])
-  type        String    // SMS_SENT | SMS_RECEIVED | DEAL_CREATED | CONTACT_CREATED | CALL_ENDED | CALL_MISSED | SYSTEM
-  title       String
-  body        String
-  link        String?   // Optional route to navigate to
-  read        Boolean   @default(false)
-  teamId      String
-  team        Team      @relation(fields: [teamId], references: [id])
-  createdAt   DateTime  @default(now())
-
-  @@index([userId, read, createdAt])
-  @@index([teamId, createdAt])
-}

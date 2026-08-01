@@ -164,7 +164,7 @@ export default function ContactsListPage() {
                   <td className="px-5 py-3.5 text-sm text-gray-600">{contact.phone}</td>
                   <td className="px-5 py-3.5 text-sm text-gray-500">{new Date(contact.createdAt).toLocaleDateString('fr-FR')}</td>
                   <td className="px-5 py-3.5">
-                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+                    <div className="flex items-center gap-1 transition-opacity duration-150">
                       <button
                         onClick={(e) => { e.stopPropagation(); navigate(`/contacts/${contact.id}`) }}
                         className="rounded-lg p-1.5 text-gray-400 hover:bg-primary-50 hover:text-primary-600 transition-colors"

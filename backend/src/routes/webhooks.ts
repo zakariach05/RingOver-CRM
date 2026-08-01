@@ -105,18 +105,6 @@ router.post('/sms-incoming', async (req, res) => {
       },
     })
 
-    if (teamMember) {
-      await prisma.notification.create({
-        data: {
-          userId: teamMember.id,
-          type: 'SMS_RECEIVED',
-          title: 'SMS reçu',
-          body: `De ${From}: ${Body.slice(0, 80)}`,
-          link: contact ? `/contacts/${contact.id}` : undefined,
-          teamId,
-        },
-      })
-    }
 
     return res.json({ ok: true, smsId: sms.id })
   } catch (error) {

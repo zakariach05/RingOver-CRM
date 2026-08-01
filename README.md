@@ -54,7 +54,6 @@
 - ☎️ **Téléphonie** — Appels via Twilio (ou mode mock en dev), historique, click-to-call
 - 💬 **SMS** — Envoi, réception, conversations par contact
 - 📊 **Dashboard analytique** — KPIs, graphiques (volume d'appels, appels par agent, pipeline)
-- 🔔 **Notifications** — Centre de notification in-app
 - 🔐 **Authentification** — JWT avec rôles (`ADMIN` / `MANAGER` / `AGENT`), mot de passe oublié
 
 ## 🧱 Stack technique
@@ -147,14 +146,14 @@ npx prisma migrate dev --name nom_de_la_migration  # migration structurée (prod
 ```
 Team
 ├── id (cuid), name, createdAt
-└── users[], invitations[], contacts[], deals[], calls[], sms[], notifications[]
+└── users[], invitations[], contacts[], deals[], calls[], sms[]
 
 User
 ├── id, email (unique), passwordHash, name
 ├── role (ADMIN | MANAGER | AGENT), status (ACTIVE | INACTIVE)
 ├── phoneExtension?, resetToken?, resetTokenExpiry?
 ├── teamId → Team
-└── sentInvitations[], ownedContacts[], ownedDeals[], calls[], sentSms[], notifications[]
+└── sentInvitations[], ownedContacts[], ownedDeals[], calls[], sentSms[]
 
 Invitation
 ├── id, email, role, token (unique), status (PENDING | ACCEPTED | EXPIRED)
@@ -177,11 +176,6 @@ Call
 Sms
 ├── id, toNumber, fromNumber, body, status (SENDING | SENT | FAILED | DRAFT)
 └── agentId → User, contactId? → Contact, teamId → Team
-
-Notification
-├── id, userId → User
-├── type (SMS_SENT | SMS_RECEIVED | DEAL_CREATED | CONTACT_CREATED | CALL_ENDED | CALL_MISSED | SYSTEM)
-└── title, body, link?, read (default false), teamId → Team
 ```
 
 </details>
@@ -282,18 +276,19 @@ POST /auth/login { email, password }
 </details>
 
 <details>
-<summary><strong>SMS</strong> — <code>/messages</code></summary>
+<summary><strong>💬 SMS</strong> — <code>/messages</code></summary>
 
-- Conversations groupées par contact · Thread complet
-- Réponse inline · `SmsComposer` avec brouillon
+- Interface premium à 3 colonnes (SaaS moderne)
+- Liste des conversations avec filtres temps réel (Non lues, Favoris, Spam)
+- Zone de discussion enrichie : modèles, emojis, variables CRM, brouillons
+- Panneau de contact CRM contextuel (historique, notes, tags)
 
 </details>
 
 <details>
-<summary><strong>Notifications & Équipe</strong></summary>
+<summary><strong>👥 Équipe</strong> — <code>/team</code></summary>
 
-- `NotificationCenter` : SMS envoyé/reçu, deal créé, contact créé, appel terminé/manqué, marquer comme lu
-- `/team` : liste des membres, invitations (ADMIN/MANAGER), modification du rôle
+- Liste des membres, invitations (ADMIN/MANAGER), modification du rôle
 
 </details>
 
@@ -303,7 +298,7 @@ POST /auth/login { email, password }
 
 <div align="center">
 
-<img src="https://readme-typing-svg.demolab.com?font=IBM+Plex+Mono&weight=500&size=16&pause=1500&color=2DD4C8&center=true&vCenter=true&width=500&lines=Authentification+%E2%80%A2+Dashboard+%E2%80%A2+Contacts;Pipeline+de+ventes+%E2%80%A2+T%C3%A9l%C3%A9phonie;SMS+%E2%80%A2+Notifications+%E2%80%A2+%C3%89quipe" alt="Screenshots typing"/>
+<img src="https://readme-typing-svg.demolab.com?font=IBM+Plex+Mono&weight=500&size=16&pause=1500&color=2DD4C8&center=true&vCenter=true&width=500&lines=Authentification+%E2%80%A2+Dashboard+%E2%80%A2+Contacts;Pipeline+de+ventes+%E2%80%A2+T%C3%A9l%C3%A9phonie;SMS+%E2%80%A2+%C3%89quipe" alt="Screenshots typing"/>
 
 </div>
 
@@ -369,13 +364,12 @@ POST /auth/login { email, password }
 </details>
 
 <details>
-<summary><strong>🔔 Notifications & Équipe</strong></summary>
+<summary><strong>👥 Équipe</strong></summary>
 
 <br/>
 
 <p align="center">
-  <img src="./docs/images-projet/notification.png" width="49%" alt="Centre de notifications"/>
-  <img src="./docs/images-projet/teams.png" width="49%" alt="Gestion d'équipe"/>
+  <img src="./docs/images-projet/teams.png" width="100%" alt="Gestion d'équipe"/>
 </p>
 
 </details>
@@ -474,13 +468,10 @@ Authorization: Bearer <token_jwt>
 </details>
 
 <details>
-<summary><strong><code>/api/notifications</code>, <code>/api/dashboard</code>, <code>/health</code></strong></summary>
+<summary><strong><code>/api/dashboard</code> & <code>/health</code></strong></summary>
 
 | Méthode | Route | Description |
 |---|---|---|
-| GET | `/api/notifications` | Liste des notifications |
-| PATCH | `/api/notifications/read` | Marquer comme lu |
-| PATCH | `/api/notifications/read-all` | Marquer toutes comme lues |
 | GET | `/api/dashboard/stats` | KPIs + données graphiques |
 | GET | `/health` | Health check |
 

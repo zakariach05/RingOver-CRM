@@ -51,19 +51,6 @@ router.post('/send', async (req, res) => {
           data: { status: shouldFail ? 'FAILED' : 'SENT' },
         })
 
-        // Create notification on success
-        if (!shouldFail) {
-          await prisma.notification.create({
-            data: {
-              userId: req.user!.id,
-              type: 'SMS_SENT',
-              title: 'SMS envoyé',
-              body: `SMS envoyé à ${data.toNumber}`,
-              link: resolvedContactId ? `/contacts/${resolvedContactId}` : undefined,
-              teamId: req.user!.teamId,
-            },
-          })
-        }
       } catch {}
     }, delay)
 
