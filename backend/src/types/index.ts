@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import jwt from 'jsonwebtoken'
+import { isRevoked } from '../services/presenceService'
 
 const JWT_SECRET = process.env.JWT_SECRET || 'default-secret'
 
@@ -28,6 +29,10 @@ export function authenticate(req: Request, res: Response, next: NextFunction) {
   const token = authHeader.split(' ')[1]
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as AuthUser
+    // Un admin peut forcer la déconnexion d'un utilisateur → token révoqué
+    if (isRevoked(decoded.id)) {
+      return res.status(401).json({ error: 'TOKEN_REVOKED' })
+    }
     req.user = decoded
     next()
   } catch {

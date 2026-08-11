@@ -97,15 +97,17 @@ router.post('/initiate', authenticate, async (req, res) => {
       return res.status(400).json({ error: 'TO_NUMBER_REQUIRED' })
     }
 
-    const active = await prisma.call.findFirst({
+    // Clean up any stuck calls to prevent blocking the agent
+    await prisma.call.updateMany({
       where: {
         agentId: req.user!.id,
         status: { in: ['INITIATED', 'RINGING', 'ANSWERED'] },
       },
+      data: {
+        status: 'ENDED',
+        endedAt: new Date(),
+      },
     })
-    if (active) {
-      return res.status(409).json({ error: 'ALREADY_ON_CALL', activeCallId: active.id })
-    }
 
     let resolvedContactId = contactId || null
     if (contactId) {

@@ -17,7 +17,7 @@ import DealsKanbanPage from './pages/DealsKanbanPage'
 import DealDetailPage from './pages/DealDetailPage'
 import DialerPage from './pages/DialerPage'
 import CallHistoryPage from './pages/CallHistoryPage'
-import MessagesPage from './pages/MessagesPage'
+import SmsPage from './pages/SmsPage'
 
 export default function App() {
   const { token } = useAuth()
@@ -32,14 +32,14 @@ export default function App() {
         <Route path="/forgot-password" element={token ? <Navigate to="/dashboard" replace /> : <ForgotPasswordPage />} />
         <Route path="/reset-password" element={token ? <Navigate to="/dashboard" replace /> : <ResetPasswordPage />} />
         <Route path="/dashboard" element={<ProtectedRoute><Layout><DashboardPlaceholder /></Layout></ProtectedRoute>} />
-        <Route path="/team" element={<ProtectedRoute><Layout><TeamMembersPage /></Layout></ProtectedRoute>} />
+        <Route path="/team" element={<ProtectedRoute allowedRoles={['ADMIN', 'MANAGER']}><Layout><TeamMembersPage /></Layout></ProtectedRoute>} />
         <Route path="/contacts" element={<ProtectedRoute><Layout><ContactsListPage /></Layout></ProtectedRoute>} />
         <Route path="/contacts/:id" element={<ProtectedRoute><Layout><ContactDetailPage /></Layout></ProtectedRoute>} />
         <Route path="/deals" element={<ProtectedRoute><Layout><DealsKanbanPage /></Layout></ProtectedRoute>} />
         <Route path="/deals/:id" element={<ProtectedRoute><Layout><DealDetailPage /></Layout></ProtectedRoute>} />
         <Route path="/dialer" element={<ProtectedRoute><Layout><DialerPage /></Layout></ProtectedRoute>} />
         <Route path="/calls" element={<ProtectedRoute><Layout><CallHistoryPage /></Layout></ProtectedRoute>} />
-        <Route path="/messages" element={<ProtectedRoute><Layout><MessagesPage /></Layout></ProtectedRoute>} />
+        <Route path="/sms" element={<ProtectedRoute><Layout><SmsPage /></Layout></ProtectedRoute>} />
         <Route path="*" element={<Navigate to={token ? '/dashboard' : '/login'} replace />} />
       </Routes>
     </CallProvider>

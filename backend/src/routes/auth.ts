@@ -5,6 +5,7 @@ import crypto from 'crypto'
 import { z } from 'zod'
 import { prisma } from '../utils/prisma'
 import { authenticate } from '../types'
+import { unrevoke } from '../services/presenceService'
 
 const router = Router()
 const JWT_SECRET = process.env.JWT_SECRET || 'default-secret'
@@ -91,6 +92,9 @@ router.post('/register', async (req, res) => {
       })
     }
 
+    // Ré-autorise le compte s'il avait été déconnecté de force précédemment
+    unrevoke(user.id)
+
     const token = jwt.sign(
       { id: user.id, role: user.role, teamId: user.teamId },
       JWT_SECRET,
@@ -135,6 +139,9 @@ router.post('/login', async (req, res) => {
     if (!valid) {
       return res.status(401).json({ error: 'INVALID_CREDENTIALS' })
     }
+
+    // Ré-autorise le compte s'il avait été déconnecté de force précédemment
+    unrevoke(user.id)
 
     const token = jwt.sign(
       { id: user.id, role: user.role, teamId: user.teamId },

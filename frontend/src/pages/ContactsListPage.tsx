@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../utils/api'
 import ContactForm from '../components/ContactForm'
@@ -22,8 +22,7 @@ export default function ContactsListPage() {
   const fetchContacts = async (page = 1) => {
     try {
       setLoading(true)
-      const params = new URLSearchParams({ page: page.toString(), pageSize: '10' })
-      if (searchQuery && searchQuery.length >= 2) params.append('q', searchQuery)
+      const params = new URLSearchParams({ page: page.toString(), pageSize: '100' })
       if (ownerFilter) params.append('ownerId', ownerFilter)
       if (tagFilter) params.append('tags', tagFilter)
       const res = await api.get(`/contacts?${params}`)
@@ -32,7 +31,19 @@ export default function ContactsListPage() {
     } catch {} finally { setLoading(false) }
   }
 
-  useEffect(() => { fetchContacts() }, [searchQuery, ownerFilter, tagFilter])
+  // Filtre client-side instantané — aucun appel API à chaque frappe
+  const filteredContacts = useMemo(() => {
+    if (!searchQuery.trim()) return contacts
+    const q = searchQuery.toLowerCase()
+    return contacts.filter(c =>
+      c.name?.toLowerCase().includes(q) ||
+      c.email?.toLowerCase().includes(q) ||
+      c.company?.toLowerCase().includes(q) ||
+      c.phone?.includes(q)
+    )
+  }, [contacts, searchQuery])
+
+  useEffect(() => { fetchContacts() }, [ownerFilter, tagFilter])
 
   const handleDelete = async (id: string) => {
     if (!window.confirm('Supprimer ce contact ?')) return
@@ -117,7 +128,7 @@ export default function ContactsListPage() {
         </div>
       )}
 
-      {contacts.length === 0 && (
+      {filteredContacts.length === 0 && (
         <div className="rounded-xl bg-white p-12 text-center shadow-sm ring-1 ring-gray-100">
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-50">
             <ContactIcon className="h-7 w-7 text-primary-500" />
@@ -130,7 +141,7 @@ export default function ContactsListPage() {
         </div>
       )}
 
-      {contacts.length > 0 && (
+      {filteredContacts.length > 0 && (
         <div className="hidden sm:block table-container">
           <table className="min-w-full divide-y divide-gray-100">
             <thead>
@@ -143,7 +154,7 @@ export default function ContactsListPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {contacts.map((contact) => (
+              {filteredContacts.map((contact) => (
                 <tr
                   key={contact.id}
                   className="group hover:bg-gray-50/50 cursor-pointer transition-colors duration-150"
@@ -186,9 +197,9 @@ export default function ContactsListPage() {
         </div>
       )}
 
-      {contacts.length > 0 && (
+      {filteredContacts.length > 0 && (
         <div className="sm:hidden space-y-3">
-          {contacts.map((contact) => (
+          {filteredContacts.map((contact) => (
             <div key={contact.id} className="mobile-card" onClick={() => navigate(`/contacts/${contact.id}`)}>
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">

@@ -1,8 +1,7 @@
 import { useState } from 'react'
-import { PhoneIncoming, PhoneOutgoing, Clock, X, MessageSquare, Send } from 'lucide-react'
+import { PhoneIncoming, PhoneOutgoing, Clock, X, Send } from 'lucide-react'
 import { Call, callsApi } from '../../api/calls.api'
 import api from '../../utils/api'
-import SmsComposer from '../sms/SmsComposer'
 
 interface PostCallModalProps {
   call: Call
@@ -15,7 +14,6 @@ export default function PostCallModal({ call, onClose }: PostCallModalProps) {
   const [showQuickContact] = useState(!call.contactId)
   const [contactName, setContactName] = useState('')
   const [creatingContact, setCreatingContact] = useState(false)
-  const [showSmsComposer, setShowSmsComposer] = useState(false)
 
   const formatDuration = (seconds: number | null) => {
     if (!seconds) return '0:00'
@@ -92,13 +90,6 @@ export default function PostCallModal({ call, onClose }: PostCallModalProps) {
 
           <div className="flex gap-2">
             <button
-              onClick={() => setShowSmsComposer(true)}
-              className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 bg-blue-50 text-blue-600 rounded-xl text-sm font-medium hover:bg-blue-100 transition-colors border border-blue-200"
-            >
-              <MessageSquare className="w-4 h-4" />
-              SMS
-            </button>
-            <button
               onClick={() => {
                 const num = call.direction === 'INBOUND' ? call.fromNumber : call.toNumber
                 const digits = num.replace(/\D/g, '')
@@ -110,15 +101,6 @@ export default function PostCallModal({ call, onClose }: PostCallModalProps) {
               WhatsApp
             </button>
           </div>
-
-          {showSmsComposer && (
-            <SmsComposer
-              toNumber={call.direction === 'INBOUND' ? call.fromNumber : call.toNumber}
-              contactName={call.contact?.name}
-              contactId={call.contactId || undefined}
-              onClose={() => setShowSmsComposer(false)}
-            />
-          )}
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">Note</label>

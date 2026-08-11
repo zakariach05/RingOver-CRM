@@ -29,39 +29,61 @@ function parsePeriod(period?: string, from?: string, to?: string): PeriodResult 
   return { dateFrom, dateTo, previousDateFrom, previousDateTo, days: Math.ceil(durationMs / 86400000) }
 }
 
-export async function getCallVolumeByDay(teamId: string, period?: string, from?: string, to?: string) {
+// ── Volume d'appels par jour (inbound + outbound) ──────────────────────────
+export async function getCallVolumeByDay(
+  teamId: string, role: string, userId: string,
+  period?: string, from?: string, to?: string,
+) {
   const { dateFrom, dateTo, days } = parsePeriod(period, from, to)
 
-  const calls = await prisma.call.groupBy({
-    by: ['startedAt'],
-    where: { teamId, startedAt: { gte: dateFrom, lte: dateTo } },
-    _count: { id: true },
+  const where: any = { teamId, startedAt: { gte: dateFrom, lte: dateTo } }
+  if (role === 'AGENT') where.agentId = userId
+
+  const calls = await prisma.call.findMany({
+    where,
+    select: { startedAt: true, direction: true },
   })
 
-  const countMap = new Map<string, number>()
+  const inMap = new Map<string, number>()
+  const outMap = new Map<string, number>()
+
   calls.forEach((c) => {
     const key = c.startedAt.toISOString().split('T')[0]
-    countMap.set(key, (countMap.get(key) || 0) + c._count.id)
+    const dir = (c.direction || '').toUpperCase()
+    if (dir === 'OUTBOUND') {
+      outMap.set(key, (outMap.get(key) || 0) + 1)
+    } else {
+      inMap.set(key, (inMap.get(key) || 0) + 1)
+    }
   })
 
-  const result: { date: string; label: string; count: number }[] = []
+  const result: { date: string; label: string; count: number; inbound: number; outbound: number }[] = []
   const dayMs = 86400000
   for (let i = 0; i <= days; i++) {
     const d = new Date(dateFrom.getTime() + i * dayMs)
     const key = d.toISOString().split('T')[0]
     const label = d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })
-    result.push({ date: key, label, count: countMap.get(key) || 0 })
+    const inbound = inMap.get(key) || 0
+    const outbound = outMap.get(key) || 0
+    result.push({ date: key, label, count: inbound + outbound, inbound, outbound })
   }
 
   return result
 }
 
-export async function getCallsByAgent(teamId: string, period?: string, from?: string, to?: string) {
+// ── Appels par agent ───────────────────────────────────────────────────────
+export async function getCallsByAgent(
+  teamId: string, role: string, userId: string,
+  period?: string, from?: string, to?: string,
+) {
   const { dateFrom, dateTo } = parsePeriod(period, from, to)
+
+  const where: any = { teamId, startedAt: { gte: dateFrom, lte: dateTo } }
+  if (role === 'AGENT') where.agentId = userId
 
   const rows = await prisma.call.groupBy({
     by: ['agentId'],
-    where: { teamId, startedAt: { gte: dateFrom, lte: dateTo } },
+    where,
     _count: { id: true },
     _sum: { duration: true },
     _avg: { duration: true },
@@ -83,18 +105,54 @@ export async function getCallsByAgent(teamId: string, period?: string, from?: st
   }))
 }
 
-export async function getPipelineByStage(teamId: string) {
+// ── Appels par heure de la journée ─────────────────────────────────────────
+export async function getCallsByHour(
+  teamId: string, role: string, userId: string,
+  period?: string, from?: string, to?: string,
+) {
+  const { dateFrom, dateTo } = parsePeriod(period, from, to)
+
+  const where: any = { teamId, startedAt: { gte: dateFrom, lte: dateTo } }
+  if (role === 'AGENT') where.agentId = userId
+
+  const calls = await prisma.call.findMany({
+    where,
+    select: { startedAt: true },
+  })
+
+  const hourMap = new Map<number, number>()
+  calls.forEach((c) => {
+    const h = c.startedAt.getHours()
+    hourMap.set(h, (hourMap.get(h) || 0) + 1)
+  })
+
+  const result: { hour: number; label: string; count: number }[] = []
+  for (let h = 0; h <= 23; h++) {
+    result.push({
+      hour: h,
+      label: `${h}h`,
+      count: hourMap.get(h) || 0,
+    })
+  }
+  return result
+}
+
+// ── Pipeline par étape ─────────────────────────────────────────────────────
+export async function getPipelineByStage(teamId: string, role: string, userId: string) {
+  const where: any = { teamId, stage: { notIn: ['LOST'] } }
+  if (role === 'AGENT') where.ownerId = userId
+
   const rows = await prisma.deal.groupBy({
     by: ['stage'],
-    where: { teamId, stage: { notIn: ['LOST'] } },
+    where,
     _sum: { value: true },
     _count: { id: true },
   })
 
   const stageOrder = ['LEAD', 'QUALIFIED', 'PROPOSAL', 'NEGOTIATION', 'WON']
   const stageLabels: Record<string, string> = {
-    LEAD: 'Prospect',
-    QUALIFIED: 'Qualification',
+    LEAD: 'Lead',
+    QUALIFIED: 'Qualifié',
     PROPOSAL: 'Proposition',
     NEGOTIATION: 'Négociation',
     WON: 'Gagné',
@@ -111,25 +169,123 @@ export async function getPipelineByStage(teamId: string) {
   })
 }
 
-export async function getKpis(teamId: string, period?: string, from?: string, to?: string) {
+// ── Activité récente ───────────────────────────────────────────────────────
+export async function getRecentActivity(teamId: string, role: string, userId: string) {
+  const callWhere: any = { teamId }
+  const dealWhere: any = { teamId }
+  if (role === 'AGENT') {
+    callWhere.agentId = userId
+    dealWhere.ownerId = userId
+  }
+
+  const [recentCalls, recentDeals] = await Promise.all([
+    prisma.call.findMany({
+      where: callWhere,
+      orderBy: { startedAt: 'desc' },
+      take: 5,
+      include: {
+        contact: { select: { name: true } },
+        agent: { select: { name: true } },
+      },
+    }),
+    prisma.deal.findMany({
+      where: dealWhere,
+      orderBy: { updatedAt: 'desc' },
+      take: 5,
+      include: {
+        owner: { select: { name: true } },
+      },
+    }),
+  ])
+
+  const stageLabels: Record<string, string> = {
+    LEAD: 'Lead',
+    QUALIFIED: 'Qualifié',
+    PROPOSAL: 'Proposition',
+    NEGOTIATION: 'Négociation',
+    WON: 'Gagné',
+    LOST: 'Perdu',
+  }
+
+  type ActivityEvent = {
+    id: string
+    type: 'call' | 'deal'
+    title: string
+    subtitle: string
+    timestamp: string
+    status?: string
+  }
+
+  const events: ActivityEvent[] = [
+    ...recentCalls.map((c) => {
+      const contactName = c.contact?.name || 'Contact inconnu'
+      const durStr = c.duration ? `${Math.floor(c.duration / 60)}:${String(c.duration % 60).padStart(2, '0')}` : '—'
+      return {
+        id: `call-${c.id}`,
+        type: 'call' as const,
+        title: `${c.agent?.name || 'Agent'} — appel avec ${contactName}`,
+        subtitle: `Durée : ${durStr}`,
+        timestamp: c.startedAt.toISOString(),
+        status: c.status,
+      }
+    }),
+    ...recentDeals.map((d) => ({
+      id: `deal-${d.id}`,
+      type: 'deal' as const,
+      title: `Deal : ${d.title}`,
+      subtitle: `${stageLabels[d.stage] || d.stage} — ${(d.value || 0).toLocaleString('fr-FR')} €`,
+      timestamp: d.updatedAt.toISOString(),
+      status: d.stage,
+    })),
+  ]
+
+  events.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+  return events.slice(0, 8)
+}
+
+// ── KPIs principaux ────────────────────────────────────────────────────────
+export async function getKpis(
+  teamId: string, role: string, userId: string,
+  period?: string, from?: string, to?: string,
+) {
   const { dateFrom, dateTo, previousDateFrom, previousDateTo } = parsePeriod(period, from, to)
+
+  const todayStart = new Date()
+  todayStart.setHours(0, 0, 0, 0)
+  const todayEnd = new Date()
+  todayEnd.setHours(23, 59, 59, 999)
+
+  const callWhere: any = { teamId }
+  const contactWhere: any = { teamId, deletedAt: null }
+  const dealWhere: any = { teamId }
+  if (role === 'AGENT') {
+    callWhere.agentId = userId
+    contactWhere.ownerId = userId
+    dealWhere.ownerId = userId
+  }
 
   const [
     totalCalls, prevTotalCalls,
     missedCalls, prevMissedCalls,
+    answeredCalls, prevAnsweredCalls,
     totalDuration, prevTotalDuration,
     totalContacts, openDeals,
-    wonRevenue,
+    wonRevenue, openPipelineValue,
+    callsToday,
   ] = await Promise.all([
-    prisma.call.count({ where: { teamId, startedAt: { gte: dateFrom, lte: dateTo } } }),
-    prisma.call.count({ where: { teamId, startedAt: { gte: previousDateFrom, lte: previousDateTo } } }),
-    prisma.call.count({ where: { teamId, startedAt: { gte: dateFrom, lte: dateTo }, status: { in: ['MISSED', 'NO_ANSWER'] } } }),
-    prisma.call.count({ where: { teamId, startedAt: { gte: previousDateFrom, lte: previousDateTo }, status: { in: ['MISSED', 'NO_ANSWER'] } } }),
-    prisma.call.aggregate({ where: { teamId, startedAt: { gte: dateFrom, lte: dateTo } }, _sum: { duration: true }, _count: { id: true } }),
-    prisma.call.aggregate({ where: { teamId, startedAt: { gte: previousDateFrom, lte: previousDateTo } }, _sum: { duration: true }, _count: { id: true } }),
-    prisma.contact.count({ where: { teamId, deletedAt: null } }),
-    prisma.deal.count({ where: { teamId, stage: { notIn: ['WON', 'LOST'] } } }),
-    prisma.deal.aggregate({ where: { teamId, stage: 'WON' }, _sum: { value: true } }),
+    prisma.call.count({ where: { ...callWhere, startedAt: { gte: dateFrom, lte: dateTo } } }),
+    prisma.call.count({ where: { ...callWhere, startedAt: { gte: previousDateFrom, lte: previousDateTo } } }),
+    prisma.call.count({ where: { ...callWhere, startedAt: { gte: dateFrom, lte: dateTo }, status: { in: ['MISSED', 'NO_ANSWER'] } } }),
+    prisma.call.count({ where: { ...callWhere, startedAt: { gte: previousDateFrom, lte: previousDateTo }, status: { in: ['MISSED', 'NO_ANSWER'] } } }),
+    prisma.call.count({ where: { ...callWhere, startedAt: { gte: dateFrom, lte: dateTo }, status: 'ANSWERED' } }),
+    prisma.call.count({ where: { ...callWhere, startedAt: { gte: previousDateFrom, lte: previousDateTo }, status: 'ANSWERED' } }),
+    prisma.call.aggregate({ where: { ...callWhere, startedAt: { gte: dateFrom, lte: dateTo } }, _sum: { duration: true }, _count: { id: true } }),
+    prisma.call.aggregate({ where: { ...callWhere, startedAt: { gte: previousDateFrom, lte: previousDateTo } }, _sum: { duration: true }, _count: { id: true } }),
+    prisma.contact.count({ where: contactWhere }),
+    prisma.deal.count({ where: { ...dealWhere, stage: { notIn: ['WON', 'LOST'] } } }),
+    prisma.deal.aggregate({ where: { ...dealWhere, stage: 'WON' }, _sum: { value: true } }),
+    prisma.deal.aggregate({ where: { ...dealWhere, stage: { notIn: ['WON', 'LOST'] } }, _sum: { value: true } }),
+    prisma.call.count({ where: { ...callWhere, startedAt: { gte: todayStart, lte: todayEnd } } }),
   ])
 
   const avgCallDuration = totalDuration._count.id > 0
@@ -139,6 +295,9 @@ export async function getKpis(teamId: string, period?: string, from?: string, to
     ? Math.round((prevTotalDuration._sum.duration || 0) / prevTotalDuration._count.id)
     : 0
 
+  const answerRate = totalCalls > 0 ? Math.round((answeredCalls / totalCalls) * 100) : 0
+  const prevAnswerRate = prevTotalCalls > 0 ? Math.round((prevAnsweredCalls / prevTotalCalls) * 100) : 0
+
   const delta = (current: number, previous: number): number | null => {
     if (previous === 0) return current > 0 ? 100 : null
     return Math.round(((current - previous) / previous) * 100)
@@ -147,12 +306,17 @@ export async function getKpis(teamId: string, period?: string, from?: string, to
   return {
     totalCalls,
     totalCallsDelta: delta(totalCalls, prevTotalCalls),
+    callsToday,
     totalContacts,
     openDeals,
     wonRevenue: wonRevenue._sum.value || 0,
+    openPipelineValue: openPipelineValue._sum.value || 0,
     avgCallDuration,
     avgCallDurationDelta: delta(avgCallDuration, prevAvgDuration),
+    answerRate,
+    answerRateDelta: delta(answerRate, prevAnswerRate),
     missedCalls,
     missedCallsDelta: delta(missedCalls, prevMissedCalls),
+    answeredCalls,
   }
 }

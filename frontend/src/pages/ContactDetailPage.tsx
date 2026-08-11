@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Edit, Trash2, Phone, Mail, Building2, Calendar, PhoneOutgoing, PhoneIncoming, MessageSquare, Send } from 'lucide-react'
+import { ArrowLeft, Edit, Trash2, Phone, Mail, Building2, Calendar, PhoneOutgoing, PhoneIncoming, Send } from 'lucide-react'
 import api from '../utils/api'
 import { Contact, ContactFormData } from '../types/contact'
 import ContactForm from '../components/ContactForm'
-import SmsComposer from '../components/sms/SmsComposer'
 import { callsApi, Call } from '../api/calls.api'
 import { useCall } from '../contexts/CallContext'
 import { openWhatsApp } from '../utils/contactUtils'
@@ -23,7 +22,6 @@ export default function ContactDetailPage() {
   const [callHistory, setCallHistory] = useState<Call[]>([])
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([])
   const [assigningOwner, setAssigningOwner] = useState(false)
-  const [showSmsComposer, setShowSmsComposer] = useState(false)
 
   const fetchContact = async () => {
     try {
@@ -282,15 +280,6 @@ export default function ContactDetailPage() {
                 <span className="text-sm font-medium">{calling ? 'Appel...' : 'Appeler'}</span>
               </button>
               <button
-                onClick={() => setShowSmsComposer(true)}
-                className="flex flex-col items-center gap-2 p-3 text-gray-700 hover:bg-white/60 rounded-xl duration-150 hover:shadow-sm"
-              >
-                <div className="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center">
-                  <MessageSquare className="w-5 h-5" />
-                </div>
-                <span className="text-sm font-medium">SMS</span>
-              </button>
-              <button
                 onClick={() => openWhatsApp(contact.phone)}
                 className="flex flex-col items-center gap-2 p-3 text-green-700 hover:bg-white/60 rounded-xl duration-150 hover:shadow-sm"
               >
@@ -347,15 +336,6 @@ export default function ContactDetailPage() {
           </div>
         </div>
       </div>
-
-      {showSmsComposer && (
-        <SmsComposer
-          toNumber={contact.phone}
-          contactName={contact.name}
-          contactId={contact.id}
-          onClose={() => setShowSmsComposer(false)}
-        />
-      )}
     </div>
   )
 }

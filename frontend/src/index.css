@@ -94,6 +94,26 @@
   animation: slideInRight 0.3s ease-out;
 }
 
+/* ── Widget « Utilisateurs en ligne » ────────────────────────────────── */
+
+/* Arrivée d'un nouvel utilisateur dans la liste */
+@keyframes userIn {
+  0%   { opacity: 0; transform: translateY(-8px); background-color: rgba(34, 197, 94, 0.10); }
+  100% { opacity: 1; transform: translateY(0);    background-color: transparent; }
+}
+.animate-user-in {
+  animation: userIn 0.9s ease-out;
+}
+
+/* Pulsation du compteur quand le total change */
+@keyframes counterPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.45); }
+  100% { box-shadow: 0 0 0 9px rgba(34, 197, 94, 0); }
+}
+.animate-counter-pulse {
+  animation: counterPulse 0.7s ease-out;
+}
+
 .kanban-scroll {
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
@@ -115,3 +135,174 @@
     @apply text-base;
   }
 }
+
+/* ══════════════════════════════════════════════
+   ROTATE DEVICE OVERLAY — portrait phones only
+   Blocks ALL content until user rotates screen
+   ══════════════════════════════════════════════ */
+
+#rotate-toast {
+  display: none;
+}
+
+@media screen and (orientation: portrait) and (max-width: 900px) {
+  #rotate-toast {
+    display: flex !important;
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(10, 14, 30, 0.97);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    animation: overlayFadeIn 0.3s ease-out both;
+  }
+}
+
+@keyframes overlayFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Card ──────────────────────────────────── */
+#rotate-toast-card {
+  background: #fff;
+  border-radius: 28px;
+  padding: 40px 32px;
+  max-width: 340px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+  animation: cardPopIn 0.45s cubic-bezier(0.34,1.56,0.64,1) both;
+  border: 1.5px solid #fee2e2;
+  position: relative;
+  overflow: visible;
+}
+
+@keyframes cardPopIn {
+  from { opacity: 0; transform: scale(0.8) translateY(30px); }
+  to   { opacity: 1; transform: scale(1)   translateY(0);    }
+}
+
+/* ── Red top bar ───────────────────────────── */
+#rotate-toast-bar {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 5px;
+  background: linear-gradient(90deg, #ef4444, #f97316, #ef4444);
+  background-size: 200% 100%;
+  border-radius: 24px 24px 0 0;
+  animation: barShimmer 2s linear infinite;
+}
+@keyframes barShimmer {
+  0%   { background-position: 0%   50%; }
+  100% { background-position: 200% 50%; }
+}
+
+/* ── Icon ──────────────────────────────────── */
+#rotate-toast-icon {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: #fef2f2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 0 14px rgba(239,68,68,0.08);
+}
+#rotate-toast-icon svg {
+  width: 50px;
+  height: 50px;
+  color: #ef4444;
+  animation: phoneRotate 2.5s ease-in-out infinite;
+  transform-origin: center;
+}
+@keyframes phoneRotate {
+  0%,  8%  { transform: rotate(0deg);   }
+  42%, 58% { transform: rotate(-90deg); }
+  92%,100% { transform: rotate(0deg);   }
+}
+
+/* ── Badge ─────────────────────────────────── */
+#rotate-toast-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #fef2f2;
+  color: #b91c1c;
+  padding: 4px 14px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+#rotate-toast-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ef4444;
+  position: relative;
+}
+#rotate-toast-dot::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  background: #ef4444;
+  opacity: 0.4;
+  animation: dotPing 1.2s ease-out infinite;
+}
+@keyframes dotPing {
+  0%   { transform: scale(1);   opacity: 0.5; }
+  100% { transform: scale(2.5); opacity: 0;   }
+}
+
+/* ── Texts ─────────────────────────────────── */
+#rotate-toast-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: #111827;
+  text-align: center;
+  line-height: 1.3;
+}
+#rotate-toast-body {
+  font-size: 14px;
+  color: #6b7280;
+  text-align: center;
+  line-height: 1.6;
+}
+
+/* ── Hint bar ──────────────────────────────── */
+#rotate-toast-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fef2f2;
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 13px;
+  color: #b91c1c;
+  font-weight: 700;
+  width: 100%;
+  justify-content: center;
+}
+#rotate-toast-hint svg {
+  width: 16px;
+  height: 16px;
+  color: #ef4444;
+  flex-shrink: 0;
+  animation: hintSpin 2.5s ease-in-out infinite;
+}
+@keyframes hintSpin {
+  0%,  8%  { transform: rotate(0deg);    }
+  42%, 58% { transform: rotate(-180deg); }
+  92%,100% { transform: rotate(0deg);    }
+}
+

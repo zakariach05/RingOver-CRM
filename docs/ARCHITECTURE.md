@@ -182,7 +182,7 @@ Quand `TWILIO_ENABLED !== 'true'`, les appels passent via `setTimeout` mock sans
 
 ## Tests
 
-- **92 tests** (auth 34, deals ~20, calls ~18, contacts ~8, dashboard 12)
+- **106 tests** (auth 34, deals ~20, calls ~18, contacts ~8, dashboard 12, presence 14)
 - `jest.config.js` : `--runInBand --forceExit` (SQLite mono-fichier)
 - `jest.setup.js` : reset complet via `prisma db push --force-reset`
 - `helpers.ts` : `cleanDb()`, `createTestTeam()`, `createTestUser()`, `generateToken()`

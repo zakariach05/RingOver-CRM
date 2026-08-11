@@ -246,7 +246,7 @@ describe('Dashboard API', () => {
       expect(Array.isArray(res.body.pipeline)).toBe(true)
       expect(res.body.pipeline.length).toBe(5)
       const labels = res.body.pipeline.map((s: any) => s.label)
-      expect(labels).toContain('Prospect')
+      expect(labels).toContain('Lead')
       expect(labels).toContain('Gagné')
     })
 

@@ -7,7 +7,6 @@ const JWT_SECRET = process.env.JWT_SECRET || 'default-secret'
 export const prisma = new PrismaClient()
 
 export async function cleanDb() {
-  await prisma.sms.deleteMany()
   await prisma.call.deleteMany()
   await prisma.deal.deleteMany()
   await prisma.contact.deleteMany()

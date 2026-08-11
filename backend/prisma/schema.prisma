@@ -13,15 +13,15 @@ datasource db {
 // Note: SQLite doesn't support native enums, so these are stored as String with app-level validation.
 
 model Team {
-  id          String       @id @default(cuid())
-  name        String
-  createdAt   DateTime     @default(now())
-  users       User[]
-  invitations Invitation[]
-  contacts    Contact[]
-  deals       Deal[]
-  calls       Call[]
-  sms         Sms[]
+  id                String            @id @default(cuid())
+  name              String
+  createdAt         DateTime          @default(now())
+  users             User[]
+  invitations       Invitation[]
+  contacts          Contact[]
+  deals             Deal[]
+  calls             Call[]
+  smsConversations  SmsConversation[]
 }
 
 model User {
@@ -43,7 +43,6 @@ model User {
   ownedContacts   Contact[]    @relation("ContactOwner")
   ownedDeals      Deal[]         @relation("DealOwner")
   calls           Call[]         @relation("CallAgent")
-  sentSms         Sms[]          @relation("SmsSender")
 
   @@index([email])
   @@index([teamId])
@@ -69,27 +68,27 @@ model Invitation {
 }
 
 model Contact {
-  id        String    @id @default(cuid())
-  name      String
-  company   String?
-  phone     String
-  email     String?
-  tags      String?   // Stored as JSON string
-  notes     String?
+  id               String            @id @default(cuid())
+  name             String
+  company          String?
+  phone            String
+  email            String?
+  tags             String?           // Stored as JSON string
+  notes            String?
 
-  ownerId   String?
-  owner     User?     @relation("ContactOwner", fields: [ownerId], references: [id])
+  ownerId          String?
+  owner            User?             @relation("ContactOwner", fields: [ownerId], references: [id])
 
-  teamId    String
-  team      Team      @relation(fields: [teamId], references: [id])
+  teamId           String
+  team             Team              @relation(fields: [teamId], references: [id])
 
-  deals     Deal[]
-  calls     Call[]
-  sms       Sms[]
+  deals            Deal[]
+  calls            Call[]
+  smsConversations SmsConversation[]
 
-  deletedAt DateTime? // Soft delete pour RGPD
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  deletedAt        DateTime?         // Soft delete pour RGPD
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
 
   @@index([teamId, name])
   @@index([teamId, phone])
@@ -137,23 +136,33 @@ model Call {
   @@index([teamId, status])
 }
 
-model Sms {
-  id          String    @id @default(cuid())
-  toNumber    String
-  fromNumber  String
-  body        String
-  status      String    @default("SENT") // SENDING | SENT | FAILED | DRAFT
-  agentId     String
-  agent       User      @relation("SmsSender", fields: [agentId], references: [id])
-  contactId   String?
-  contact     Contact?  @relation(fields: [contactId], references: [id])
+model SmsConversation {
+  id          String       @id @default(cuid())
+  contactId   String
+  contact     Contact      @relation(fields: [contactId], references: [id])
   teamId      String
-  team        Team      @relation(fields: [teamId], references: [id])
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  team        Team         @relation(fields: [teamId], references: [id])
+  lastMessage String?
+  lastAt      DateTime?
+  unreadCount Int          @default(0)
+  messages    SmsMessage[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
 
-  @@index([teamId, agentId, createdAt])
-  @@index([teamId, contactId])
-  @@index([teamId, status])
+  @@unique([contactId, teamId])
+  @@index([teamId, lastAt])
+}
+
+model SmsMessage {
+  id             String          @id @default(cuid())
+  conversationId String
+  conversation   SmsConversation @relation(fields: [conversationId], references: [id])
+  direction      String          // INBOUND | OUTBOUND
+  body           String
+  status         String          @default("SENT") // SENT | DELIVERED | FAILED | RECEIVED
+  ringoverSmsId  String?
+  sentAt         DateTime        @default(now())
+
+  @@index([conversationId, sentAt])
 }
 

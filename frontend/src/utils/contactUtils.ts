@@ -5,10 +5,6 @@ function normalizePhone(phone: string): string {
   return digits
 }
 
-export function openSms(phone: string) {
-  window.location.href = `sms:${normalizePhone(phone)}`
-}
-
 export function openWhatsApp(phone: string) {
   window.open(`https://wa.me/${normalizePhone(phone)}`, '_blank')
 }

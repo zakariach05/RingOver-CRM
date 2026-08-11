@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { prisma } from '../utils/prisma'
-import { authenticate } from '../types'
+import { authenticate, requireRole } from '../types'
 import { z } from 'zod'
 
 const router = Router()
@@ -82,6 +82,10 @@ router.get('/', async (req, res) => {
       where.ownerId = ownerId as string
     }
 
+    if (req.user!.role === 'AGENT') {
+      where.ownerId = req.user!.id
+    }
+
     if (tags) {
       const tagList = (tags as string).split(',').map((t) => t.trim()).filter(Boolean)
       if (tagList.length === 1) {
@@ -120,6 +124,11 @@ router.get('/:id', async (req, res) => {
     if (!contact) {
       return res.status(404).json({ error: 'CONTACT_NOT_FOUND' })
     }
+
+    if (req.user!.role === 'AGENT' && contact.ownerId !== req.user!.id) {
+      return res.status(403).json({ error: 'FORBIDDEN' })
+    }
+
     return res.json(contact)
   } catch (error) {
     console.error('Get contact error:', error)
@@ -135,6 +144,10 @@ router.put('/:id', async (req, res) => {
     })
     if (!contact) {
       return res.status(404).json({ error: 'CONTACT_NOT_FOUND' })
+    }
+
+    if (req.user!.role === 'AGENT' && contact.ownerId !== req.user!.id) {
+      return res.status(403).json({ error: 'FORBIDDEN' })
     }
 
     const updated = await prisma.contact.update({
@@ -165,6 +178,10 @@ router.delete('/:id', async (req, res) => {
     })
     if (!contact) {
       return res.status(404).json({ error: 'CONTACT_NOT_FOUND' })
+    }
+
+    if (req.user!.role === 'AGENT' && contact.ownerId !== req.user!.id) {
+      return res.status(403).json({ error: 'FORBIDDEN' })
     }
 
     const openDeals = await prisma.deal.findMany({
@@ -198,7 +215,7 @@ router.delete('/:id', async (req, res) => {
   }
 })
 
-router.patch('/:id/owner', async (req, res) => {
+router.patch('/:id/owner', requireRole('ADMIN', 'MANAGER'), async (req, res) => {
   try {
     const { ownerId } = req.body
     if (ownerId) {

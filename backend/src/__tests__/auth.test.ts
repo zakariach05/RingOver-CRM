@@ -422,7 +422,7 @@ describe('Critères d\'acceptation Partie 1', () => {
     const agent = await createTestUser(team.id, { role: 'AGENT' })
 
     const res1 = await request(app).get('/team/members').set('Authorization', `Bearer ${generateToken(agent)}`)
-    expect(res1.status).toBe(200)
+    expect(res1.status).toBe(403)
 
     const res2 = await request(app)
       .post('/team/invitations')

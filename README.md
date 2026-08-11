@@ -6,11 +6,11 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)](https://react.dev)
 [![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?logo=prisma&logoColor=white)](https://www.prisma.io/)
-[![Tests](https://img.shields.io/badge/tests-92%20passed-4ADE80?logo=jest&logoColor=white)]()
+[![Tests](https://img.shields.io/badge/tests-106%20passed-4ADE80?logo=jest&logoColor=white)]()
 [![License](https://img.shields.io/badge/license-private-lightgrey)]()
 
 <a href="#-présentation">
-  <img src="https://readme-typing-svg.demolab.com?font=IBM+Plex+Mono&weight=600&size=20&pause=1200&color=F5A623&center=true&vCenter=true&width=640&lines=Gestion+de+contacts+avec+soft+delete+RGPD;Pipeline+de+ventes+Kanban+%3A+LEAD+%E2%86%92+WON+%2F+LOST;T%C3%A9l%C3%A9phonie+Twilio+(ou+mock+en+dev);SMS+%2B+conversations+group%C3%A9es+par+contact;Dashboard+analytique+en+temps+r%C3%A9el" alt="Typing SVG"/>
+  <img src="https://readme-typing-svg.demolab.com?font=IBM+Plex+Mono&weight=600&size=20&pause=1200&color=F5A623&center=true&vCenter=true&width=640&lines=Gestion+de+contacts+avec+soft+delete+RGPD;Pipeline+de+ventes+Kanban+%3A+LEAD+%E2%86%92+WON+%2F+LOST;T%C3%A9l%C3%A9phonie+Twilio+(ou+mock+en+dev);SMS+%2B+conversations+group%C3%A9es+par+contact;Dashboard+analytique+en+temps+r%C3%A9el;Utilisateurs+en+ligne+%28pr%C3%A9sence+temps+r%C3%A9el%29" alt="Typing SVG"/>
 </a>
 
 <br/>
@@ -35,7 +35,6 @@
 - [Lancement](#-lancement)
 - [Authentification](#-authentification)
 - [Fonctionnalités](#-fonctionnalités)
-- [Captures d'écran](#-captures-décran)
 - [Référence API](#-référence-api)
 - [Tests](#-tests)
 - [Mode Twilio](#-mode-twilio)
@@ -54,6 +53,7 @@
 - ☎️ **Téléphonie** — Appels via Twilio (ou mode mock en dev), historique, click-to-call
 - 💬 **SMS** — Envoi, réception, conversations par contact
 - 📊 **Dashboard analytique** — KPIs, graphiques (volume d'appels, appels par agent, pipeline)
+- 🟢 **Utilisateurs en ligne** — présence temps réel, statut 🟢/🟡, déconnexion forcée par un admin
 - 🔐 **Authentification** — JWT avec rôles (`ADMIN` / `MANAGER` / `AGENT`), mot de passe oublié
 
 ## 🧱 Stack technique
@@ -244,6 +244,7 @@ POST /auth/login { email, password }
 - Graphique pipeline par étape + ligne de tendance
 - Sélection de période : 7j / 14j / 30j / 90j + personnalisée
 - Cache 30s, invalidé sur création/modification de call ou deal
+- Widget « Utilisateurs en ligne » (admin) : liste temps réel, recherche, déconnexion forcée
 
 </details>
 
@@ -292,89 +293,17 @@ POST /auth/login { email, password }
 
 </details>
 
+<details>
+<summary><strong>🟢 Utilisateurs en ligne</strong> — <code>/dashboard</code> (admin)</summary>
+
+- Heartbeat navigateur (`sendBeacon` à la fermeture de l'onglet) → session présence
+- Widget « Utilisateurs en ligne » : statut 🟢 actif / 🟡 inactif, page consultée
+- Recherche, déconnexion forcée d'un utilisateur par un admin
+- Auto-expiration après inactivité (12s, +7s de marge)
+
+</details>
+
 <img width="100%" src="https://capsule-render.vercel.app/api?type=rect&color=0:2DD4C8,100:0A0E12&height=2" alt="divider"/>
-
-## 📸 Captures d'écran
-
-<div align="center">
-
-<img src="https://readme-typing-svg.demolab.com?font=IBM+Plex+Mono&weight=500&size=16&pause=1500&color=2DD4C8&center=true&vCenter=true&width=500&lines=Authentification+%E2%80%A2+Dashboard+%E2%80%A2+Contacts;Pipeline+de+ventes+%E2%80%A2+T%C3%A9l%C3%A9phonie;SMS+%E2%80%A2+%C3%89quipe" alt="Screenshots typing"/>
-
-</div>
-
-<br/>
-
-<details open>
-<summary><strong>🔐 Authentification</strong></summary>
-
-<br/>
-
-<p align="center">
-  <img src="./docs/images-projet/login.png" width="49%" alt="Page de connexion"/>
-  <img src="./docs/images-projet/register.png" width="49%" alt="Page d'inscription"/>
-</p>
-
-</details>
-
-<details>
-<summary><strong>📊 Dashboard</strong></summary>
-
-<br/>
-
-<p align="center">
-  <img src="./docs/images-projet/dashbord.png" width="100%" alt="Dashboard analytique"/>
-</p>
-
-</details>
-
-<details>
-<summary><strong>💼 Pipeline de ventes</strong></summary>
-
-<br/>
-
-<p align="center">
-  <img src="./docs/images-projet/deals.png" width="49%" alt="Vue Kanban des deals"/>
-  <img src="./docs/images-projet/deals2.png" width="49%" alt="Détail d'un deal"/>
-</p>
-
-</details>
-
-<details>
-<summary><strong>☎️ Téléphonie</strong></summary>
-
-<br/>
-
-<p align="center">
-  <img src="./docs/images-projet/dialer.png" width="49%" alt="Composeur d'appel"/>
-  <img src="./docs/images-projet/calls.png" width="49%" alt="Historique des appels"/>
-</p>
-
-</details>
-
-<details>
-<summary><strong>💬 SMS & Contacts</strong></summary>
-
-<br/>
-
-<p align="center">
-  <img src="./docs/images-projet/messages.png" width="49%" alt="Conversations SMS"/>
-  <img src="./docs/images-projet/contact.png" width="49%" alt="Fiche contact"/>
-</p>
-
-</details>
-
-<details>
-<summary><strong>👥 Équipe</strong></summary>
-
-<br/>
-
-<p align="center">
-  <img src="./docs/images-projet/teams.png" width="100%" alt="Gestion d'équipe"/>
-</p>
-
-</details>
-
-<img width="100%" src="https://capsule-render.vercel.app/api?type=rect&color=0:F5A623,100:0A0E12&height=2" alt="divider"/>
 
 ## 🔌 Référence API
 
@@ -477,6 +406,18 @@ Authorization: Bearer <token_jwt>
 
 </details>
 
+<details>
+<summary><strong><code>/api/presence</code></strong></summary>
+
+| Méthode | Route | Description |
+|---|---|---|
+| POST | `/api/presence/heartbeat` | Heartbeat navigateur (crée/rafraîchit la session) |
+| POST | `/api/presence/heartbeat` (`{ leave: true }`) | Départ immédiat (beacon `sendBeacon` à la fermeture) |
+| GET | `/api/presence/online` | Liste des utilisateurs en ligne (ADMIN uniquement) |
+| POST | `/api/presence/:userId/disconnect` | Déconnexion forcée d'un utilisateur (ADMIN uniquement) |
+
+</details>
+
 **Format des réponses :**
 
 ```json
@@ -515,8 +456,8 @@ npm test
 ```
 
 ```
-Test Suites: 5 passed, 5 total
-Tests:       92 passed, 92 total
+Test Suites: 6 passed, 6 total
+Tests:       106 passed, 106 total
 ```
 
 ```bash
@@ -534,6 +475,7 @@ npm run test:watch
 | `calls.test.ts` | ~18 | Initiation d'appel, historique, RBAC |
 | `contacts.test.ts` | ~8 | CRUD contacts, soft delete |
 | `dashboard.test.ts` | 12 | Cache invalidation, KPIs, LOST exclusion, dates custom |
+| `presence.test.ts` | 14 | Heartbeat, liste en ligne, déconnexion forcée, 401/403 |
 
 > Les tests utilisent `prisma/test.db` (séparé de `dev.db`), reset avant chaque run via `jest.setup.js` (`npx prisma db push --force-reset --accept-data-loss`).
 

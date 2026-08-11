@@ -1,7 +1,6 @@
 import { useState, useCallback, useEffect } from 'react'
-import { Phone, Delete, Clock, MessageSquare, Send } from 'lucide-react'
+import { Phone, Delete, Clock, Send } from 'lucide-react'
 import { playKeypadTone, soundsEnabled } from '../../utils/audioManager'
-import SmsComposer from '../sms/SmsComposer'
 
 const KEYS = [
   ['1', ''], ['2', 'ABC'], ['3', 'DEF'],
@@ -34,7 +33,6 @@ interface DialPadProps {
 export default function DialPad({ onCall }: DialPadProps) {
   const [number, setNumber] = useState('')
   const [recentCalls, setRecentCalls] = useState<string[]>(getRecent)
-  const [showSmsComposer, setShowSmsComposer] = useState(false)
 
   const handleKeyPress = useCallback((key: string) => {
     if (soundsEnabled()) playKeypadTone(key)
@@ -127,13 +125,6 @@ export default function DialPad({ onCall }: DialPadProps) {
       {isValid && (
         <div className="flex gap-3 w-full mt-3">
           <button
-            onClick={() => setShowSmsComposer(true)}
-            className="flex-1 h-10 rounded-xl bg-blue-50 text-blue-600 text-xs font-medium hover:bg-blue-100 transition-all duration-200 flex items-center justify-center gap-1.5 border border-blue-200"
-          >
-            <MessageSquare className="w-3.5 h-3.5" />
-            SMS
-          </button>
-          <button
             onClick={() => {
               const digits = number.replace(/\D/g, '')
               window.open(`https://wa.me/${digits}`, '_blank')
@@ -144,13 +135,6 @@ export default function DialPad({ onCall }: DialPadProps) {
             WhatsApp
           </button>
         </div>
-      )}
-
-      {showSmsComposer && (
-        <SmsComposer
-          toNumber={number}
-          onClose={() => setShowSmsComposer(false)}
-        />
       )}
 
       {/* Recent calls */}

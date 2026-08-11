@@ -77,19 +77,25 @@ describe('Calls API', () => {
       expect(res.body.error).toBe('TO_NUMBER_REQUIRED')
     })
 
-    it('should block simultaneous calls (409)', async () => {
-      await request(app)
+    it('should end a previous in-progress call when initiating a new one', async () => {
+      const first = await request(app)
         .post('/api/calls/initiate')
         .set('Authorization', `Bearer ${agentToken}`)
         .send({ toNumber: '+33698765432' })
+      expect(first.status).toBe(201)
+      expect(first.body.call.status).toBe('INITIATED')
 
-      const res = await request(app)
+      const second = await request(app)
         .post('/api/calls/initiate')
         .set('Authorization', `Bearer ${agentToken}`)
         .send({ toNumber: '+33611111111' })
+      expect(second.status).toBe(201)
+      expect(second.body.call.status).toBe('INITIATED')
 
-      expect(res.status).toBe(409)
-      expect(res.body.error).toBe('ALREADY_ON_CALL')
+      // Le premier appel est automatiquement terminé pour ne pas bloquer l'agent
+      const ended = await prisma.call.findUnique({ where: { id: first.body.call.id } })
+      expect(ended?.status).toBe('ENDED')
+      expect(ended?.endedAt).toBeDefined()
     })
 
     it('should reject invalid contact', async () => {

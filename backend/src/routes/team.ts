@@ -5,7 +5,7 @@ import crypto from 'crypto'
 
 const router = Router()
 
-router.get('/members', authenticate, async (req, res) => {
+router.get('/members', authenticate, requireRole('ADMIN', 'MANAGER'), async (req, res) => {
   try {
     const members = await prisma.user.findMany({
       where: { teamId: req.user!.teamId },

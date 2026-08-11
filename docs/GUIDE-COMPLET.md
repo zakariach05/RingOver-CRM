@@ -464,8 +464,8 @@ npm test
 
 **Résultat :**
 ```
-Test Suites: 5 passed, 5 total
-Tests:       92 passed, 92 total
+Test Suites: 6 passed, 6 total
+Tests:       106 passed, 106 total
 ```
 
 ### 9.2 Lancer un fichier de test spécifique

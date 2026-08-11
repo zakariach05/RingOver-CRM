@@ -76,3 +76,16 @@ export function useDeals(initialScope = 'all') {
     STAGES,
   }
 }
+
+export function useOpenDealsCount() {
+  const [count, setCount] = useState(0)
+
+  useEffect(() => {
+    dealsApi.list({ scope: 'open', pageSize: '1' })
+      .then((res) => setCount(res.data.total))
+      .catch(() => {})
+  }, [])
+
+  return count
+}
+

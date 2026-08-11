@@ -7,8 +7,9 @@ import contactsRoutes from './routes/contacts'
 import dealsRoutes from './routes/deals'
 import callsRoutes from './routes/calls'
 import webhooksRoutes from './routes/webhooks'
-import smsRoutes from './routes/sms'
 import dashboardRoutes from './routes/dashboard'
+import smsRoutes from './routes/sms'
+import presenceRoutes from './routes/presence'
 
 // Load .env only outside of test env.
 // In tests, jest.env.js (setupFiles) already sets the required vars BEFORE
@@ -29,8 +30,9 @@ app.use('/contacts', contactsRoutes)
 app.use('/deals', dealsRoutes)
 app.use('/api/calls', callsRoutes)
 app.use('/api/webhooks', webhooksRoutes)
-app.use('/api/sms', smsRoutes)
 app.use('/api/dashboard', dashboardRoutes)
+app.use('/api/sms', smsRoutes)
+app.use('/api/presence', presenceRoutes)
 
 app.get('/health', (_req, res) => res.json({ status: 'ok' }))
 
