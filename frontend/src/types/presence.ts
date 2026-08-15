@@ -1,7 +1,7 @@
 // ── Types du module « Utilisateurs en ligne » ──────────────────────────────
 // L'API de présence utilise snake_case (format imposé par le cahier des
 // charges). Le reste du projet est en camelCase — ces types isolent la
-// conversion au sein du widget.
+// conversion au sein du widget. 
 
 export type PresenceStatus = 'active' | 'idle'
 
